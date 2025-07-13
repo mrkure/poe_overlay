@@ -19,10 +19,6 @@ from pov_keyboard import kb_manager
 from pov_widgets import ButtonsWidget, FrameWidget
 
 
-icon_path = f"{os.path.split(os.path.dirname(__file__))[0]}/res/icons8-photo-gallery-64.png"
-target_app_name = "Path of Exile"
-
-
 class Driver(QtWidgets.QWidget):
     """main window class invisible window on the whole monitor
     class has to inherit from QWidget, to be able to work with signals"""
@@ -41,7 +37,7 @@ class Driver(QtWidgets.QWidget):
         self.mymouse = mo_manager
         self.my_keyboard = kb_manager
 
-        self.hwndMain = win32gui.FindWindow(None, target_app_name)  # set foreground window check
+        self.hwndMain = win32gui.FindWindow(None, params["target_app_name"])  # set foreground window check
 
         # DRIVER VARIABLES
         self.health_time_last = 0
@@ -140,6 +136,8 @@ class Driver(QtWidgets.QWidget):
 
     def on_button_window_checkbox_state_changed(self):
         """callback method, react to checkbox press on buttons frame"""
+        self.bring_target_window_on_top()
+
         name = self.sender().text()
         if name == "S":
             if self.sender().isChecked():
@@ -164,7 +162,7 @@ class Driver(QtWidgets.QWidget):
         try:
             keyboard.press("alt")
             if self.hwndMain == 0:
-                self.hwndMain = win32gui.FindWindow(None, target_app_name)
+                self.hwndMain = win32gui.FindWindow(None, params["target_app_name"])
             win32gui.SetForegroundWindow(self.hwndMain)
             keyboard.release("alt")
         except:
@@ -173,7 +171,7 @@ class Driver(QtWidgets.QWidget):
     def toggle_app_state_based_on_topmost_window(self):
         """hook, unhook all components, set visual state of button frame if target window is topmost or not"""
         self.game_active_last = self.game_active
-        if win32gui.GetWindowText(win32gui.GetForegroundWindow()) == target_app_name:
+        if win32gui.GetWindowText(win32gui.GetForegroundWindow()) == params["target_app_name"]:
             self.game_active = True
         else:
             self.game_active = False

@@ -12,7 +12,8 @@ params = {
     "fast_click_left_with_shift_down": "f5",
     "use_portal_scroll"              : "`",
     "caps lock"                      : "6",
-
+    
+    "target_app_name"      : "Path of Exile",
     "path_frame_buttons_ui": rf"{os.path.dirname(os.path.dirname(__file__))}\res\frame_buttons.ui",
     "path_icon_running"    : rf"{os.path.dirname(os.path.dirname(__file__))}\res\running.png",
     "path_icon_stopped"    : rf"{os.path.dirname(os.path.dirname(__file__))}\res\stopped.png",
