@@ -1,0 +1,97 @@
+"""gui elements module"""
+
+from PyQt5.QtCore import QPoint, Qt
+from PyQt5.QtWidgets import QCheckBox, QPushButton
+from PyQt5 import QtCore as qtc  # type: ignore
+from PyQt5 import (
+    QtWidgets,  # type: ignore
+    uic,
+)
+
+from _params import params
+
+
+class ButtonsWidget(QtWidgets.QWidget):
+    """buttons window"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        uic.loadUi(params["path_frame_buttons_ui"], self)
+        self.setWindowFlags(qtc.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(qtc.Qt.FramelessWindowHint | qtc.Qt.WindowStaysOnTopHint | qtc.Qt.Tool)
+        self.oldPos = None
+        self.setStyleSheet(params["frame_buttons"]["css"])
+
+    def connect_buttons(self, function):
+        """_summary_
+
+        Args:
+            function (_type_): connects to callback function all buttons by their text property
+        """
+        for widget in self.children():
+            if isinstance(widget, QPushButton):
+                widget.clicked.connect(function)
+
+    def connect_checkboxes(self, function):
+        """_summary_
+
+        Args:
+            function (_type_): connects to callback function all checkboxes by their text property
+        """
+        for widget in self.children():
+            if isinstance(widget, QCheckBox):
+                widget.clicked.connect(function)
+                # widget.setStyleSheet(params["button_inactive"])
+
+    def set_visual_style_hooked(self):
+        """set hooked visual state of hooked and unhooked buttons"""
+        self.pushButton_hooked.setStyleSheet(params["button_active"])
+        self.pushButton_unhooked.setStyleSheet(params["button_inactive"])
+
+    def set_visual_style_unhooked(self):
+        """set hooked visual state of hooked and unhooked buttons"""
+        self.pushButton_hooked.setStyleSheet(params["button_inactive"])
+        self.pushButton_unhooked.setStyleSheet(params["button_active"])
+
+    def mousePressEvent(self, evt):
+        """press event to move app
+
+        Args:
+            evt (_type_): event
+        """
+        self.oldPos = evt.globalPos()
+
+    def mouseMoveEvent(self, evt):
+        """move event to move app
+
+        Args:
+            evt (_type_): event
+        """
+        if self.underMouse():
+            delta = QPoint(evt.globalPos() - self.oldPos)
+            self.move(self.x() + delta.x(), self.y() + delta.y())
+            self.oldPos = evt.globalPos()
+
+
+class FrameWidget(QtWidgets.QWidget):
+    """frame widget to display various frames on screen"""
+
+    def __init__(self, frame_scan, frame, outer_frame):
+        super().__init__()
+        self.setWindowFlags(qtc.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(qtc.Qt.FramelessWindowHint | qtc.Qt.WindowStaysOnTopHint | qtc.Qt.Tool)
+        self.setAttribute(qtc.Qt.WA_TranslucentBackground)
+
+        x, y, w, h = frame_scan["geometry"]
+        xl, yl, wl, hl = frame["geometry"]
+        css = frame["css"]
+        if outer_frame:
+            xl, yl, wl, hl = 0, 0, w, h
+            css = frame_scan["css"]
+
+        self.setGeometry(qtc.QRect(x + xl, y + yl, wl, hl))  # x, y, width, height
+        self.label = QtWidgets.QLabel(self)
+        self.label.setGeometry(0, 0, wl, hl)
+        self.label.setStyleSheet(css)
+        self.label.setAlignment(Qt.AlignCenter)

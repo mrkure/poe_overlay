@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>582</width>
-    <height>29</height>
+    <width>363</width>
+    <height>26</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -47,37 +47,33 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="pushButton_start_record">
-     <property name="text">
-      <string>Start record</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pushButton_stop_record">
-     <property name="text">
-      <string>Stop Record</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pushButton_play_record">
-     <property name="text">
-      <string>Play Record</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pushButton_stopwatch">
-     <property name="text">
-      <string>Stopwatch</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QPushButton" name="pushButton_close">
      <property name="text">
       <string>Close</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBox_scan_area">
+     <property name="text">
+      <string>S</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBox_health_bar">
+     <property name="text">
+      <string>H</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBox_health_value">
+     <property name="text">
+      <string>V</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
      </property>
     </widget>
    </item>

@@ -1,27 +1,20 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Oct 18 16:03:13 2022
+"""poe overlay tray module"""
 
-@author: mrkure
-"""
-
-# from mklib.lib_io import mkIO
-# mkIO.activate_env(1, 'work', __file__,1)
-import os, sys
+import sys
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QSystemTrayIcon, QAction, QMenu, QApplication
-import lib._main_exe as me
-# from mk_css import dic_css
 
-class TrayAppTradeWhisper(QSystemTrayIcon, QWidget):
+from lib._main import Driver
+from lib._params import params
+
+
+class PoeOverlayTray(QSystemTrayIcon, QWidget):
+    """poe overlay tray class"""
     def __init__(self):
-        super(QSystemTrayIcon, self).__init__()
-        super(QWidget, self).__init__()
+        super().__init__()
 
-
-        self.icon_running = QIcon(rf"{os.path.dirname(__file__)}\res\running.png")
-        self.icon_stopped = QIcon(rf"{os.path.dirname(__file__)}\res\stopped.png")
-        # self.setStyleSheet(dic_css['gray'])
+        self.icon_running = QIcon(params["path_icon_running"])
+        self.icon_stopped = QIcon(params["path_icon_stopped"])
         self.menu = QMenu()
         self.setContextMenu(self.menu)
         self.setIcon(self.icon_running)
@@ -29,24 +22,16 @@ class TrayAppTradeWhisper(QSystemTrayIcon, QWidget):
         self.menu.addAction(self.option_close)
         self.running = True
         self.setVisible(True)
-
-        # %% TRAY SIGNALS
         self.option_close.triggered.connect(self.on_close)
         self.activated.connect(self.on_click)
 
-        # %% MAIN WINDOW
-        self.create_main_window()
+        self.main = Driver()
 
-    def create_main_window(self):
-        self.main = me.MainWindow()
-        # self.main.showMaximized()
+    # _______________________________________ CALLBACKS _______________________________________
 
-    # %% CALLBACKS
-
-    # close or create main window app
     def on_click(self, button):
-        # if left button clicked
-        if str(button) == "3":
+        """close or create main window app"""
+        if str(button) == "3":  # left button
             if self.running:
                 self.setIcon(self.icon_stopped)
                 self.running = False
@@ -55,19 +40,17 @@ class TrayAppTradeWhisper(QSystemTrayIcon, QWidget):
             elif not self.running:
                 self.setIcon(self.icon_running)
                 self.running = True
-                self.main = me.MainWindow()
-                # self.main.showMaximized()
+                self.main = Driver()
 
-    # close tray app
     def on_close(self):
+        """close app"""
         self.main.close_windows()
         self.hide()
         sys.exit(0)
 
 
-# %% MAIN
 if __name__ == "__main__":
     app = QApplication([])
-    tray_app_trade_whisper = TrayAppTradeWhisper()
+    tray_app_trade_whisper = PoeOverlayTray()
     app.setStyle("fusion")
     app.exec()

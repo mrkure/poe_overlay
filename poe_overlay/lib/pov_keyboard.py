@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Oct 15 11:34:49 2022
-
-@author: mrkure
-"""
+"""keyboard hook module"""
 
 import random
 import threading
@@ -34,8 +29,8 @@ class KeyboardManager:
             func (Callable): dictionary with shortcut, function and thread
         """
 
-        id = keyboard.add_hotkey(worker["hotkey"], self._toggle_worker, args=(worker,))
-        worker["id"] = id
+        _id = keyboard.add_hotkey(worker["hotkey"], self._toggle_worker, args=(worker,))
+        worker["id"] = _id
 
     def _toggle_worker(self, worker: dict) -> None:
         """thread manager, start or close (virtually) function
@@ -166,12 +161,13 @@ f = KeyboardFunctions
 workers = [
     {"hotkey": "`", "function": f.use_portal_scroll},
     {"hotkey": "space", "function": f.use_skill_repeatidly},
-    # {"hotkey": "F6", "function": f.flask_use_rotation, "flasks_pointer": 0, "flasks": [[1], [2], [3], [4], [5]]},
     {"hotkey": "F4", "function": f.fast_click_left_with_ctrl_down},
     {"hotkey": "F5", "function": f.fast_click_left_with_shift_down},
+    # {"hotkey": "F6", "function": f.flask_use_rotation, "flasks_pointer": 0, "flasks": [[1], [2], [3], [4], [5]]},
 ]
 kb_manager = KeyboardManager(workers)
-# --- Usage ---
+
+
 if __name__ == "__main__":
     kb_manager = KeyboardManager(workers)
     kb_manager.hook_all()

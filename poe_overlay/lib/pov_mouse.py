@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jul 25 09:54:40 2022
-
-@author: 42073
-"""
+"""mouse hook module"""
 
 import time
 import threading
@@ -120,13 +115,9 @@ class MouseFunctions:
 
 mf = MouseFunctions
 workers = {
-    "wheel_forward": {
-        "function": mf.wheel_forward,
-        "timeout": 2,
-        "flasks": [[4, 5]],
-    },
+    "wheel_forward" : {"function": mf.wheel_forward, "timeout": 2, "flasks": [[4, 5]]},
     "wheel_backward": {"function": mf.wheel_backward, "timeout": 2},
-    "middle_click": {"function": mf.use_skill_repeatidly, "delay": 1, "toggle": True},
+    "middle_click"  : {"function": mf.use_skill_repeatidly, "delay": 1, "toggle": True},
 }
 mo_manager = MouseManager(workers)
 

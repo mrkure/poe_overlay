@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Feb 17 11:38:40 2023
+"""init"""
 
-@author: CAZ2BJ
-"""
-import sys, os
-sys.path.append( os.path.dirname(__file__))
+import os
+import sys
 
-
+sys.path.append(os.path.dirname(__file__))

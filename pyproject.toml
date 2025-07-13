@@ -3,7 +3,7 @@
 # =============================================================================
 [tool.ruff]
 line-length = 200
-ignore = ["E722"]
+ignore = ["E722"] # bare except
 # =============================================================================
 # MYPY
 # =============================================================================
@@ -12,6 +12,7 @@ python_version = '3.10'
 warn_return_any = true
 warn_unused_configs = true
 exclude = "scratch/*"
+ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = ["pyspark.*", "schedule"]
@@ -22,18 +23,22 @@ ignore_missing_imports = true
 # =============================================================================
 [tool.pylint]
 disable = [
-    "W0621",
-    "C0123",
-    "C0301",
-    "C0103",
-    "E0611",
-    "I1101",
-    "R0902",
-    "R0904",
-    "W0201",
-    "W0106",
-    "W0702",
-    "W0719",
+    "W0621", # Redefining name from outer scope  
+#     "C0123", # Use of `lambda` detected (consider using `def`)  
+#     "C0301", # Line too long  
+    "C0103", # Invalid naming convention  
+    "I1101", # Module import not recognized (usually due to dynamic import or missing stubs)  
+#     "R0902", # Too many instance attributes  
+#     "R0904", # Too many public methods  
+#     "R0914", # Too many local variables
+#     "W0201", # Attribute defined outside __init__  
+#     "W0106", # Expression not assigned (possibly useless code)  
+    "W0702", # No exception type(s) specified, bare except (try, except block) without specification 
+#     "W0719", # Raising too general exception (raise Exception) (not allowed in Python 3)  
+
+#     # modules are not installed
+    "E0611", # No name in module (import error)
+    "E0401", # Unable to import module  
 ]
 [tool.pylint.main]
 ignore = ["scratch/*"]
@@ -41,3 +46,27 @@ max-line-length = 200
 
 [tool.pylint.'MESSAGES CONTROL']
 extension-pkg-whitelist = "pydantic"
+
+# =============================================================================
+# PYLANCE
+# =============================================================================
+[tool.pyright]
+reportMissingModuleSource = false
+
+
+
+# [tool.semantic_release.commit_parser_options]
+# allowed_tags = [
+#     "build",
+#     "chore",
+#     "ci",
+#     "docs",
+#     "feat",
+#     "fix",
+#     "perf",
+#     "style",
+#     "refactor",
+#     "test",
+#     "ci",
+#     "powerbi",
+# ]
