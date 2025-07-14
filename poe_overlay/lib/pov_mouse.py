@@ -70,7 +70,7 @@ class MouseManager:
         """map functions to worker dictionaries"""
         self.workers["wheel_forward"]["function"] = MouseFunctions.wheel_forward
         self.workers["wheel_backward"]["function"] = MouseFunctions.wheel_backward
-        self.workers["use_skill_repeatidly"]["function"] = MouseFunctions.use_skill_repeatidly
+        self.workers["use_skill_repeatedly"]["function"] = MouseFunctions.use_skill_repeatedly
 
         for key, value in self.workers.items():
             value["hotkey"] = key
@@ -106,7 +106,7 @@ class MouseFunctions:
             worker["running"] = False
 
     @staticmethod
-    def use_skill_repeatidly(worker):
+    def use_skill_repeatedly(worker):
         """use skill repeatidly - for example molten shell"""
         for i in count():  # infinite loop
             if not worker["running"]:

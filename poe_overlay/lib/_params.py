@@ -8,7 +8,7 @@ DARK   = "rgb(100, 100, 100)"
 
 
 remap_mouse = {
-    "wheel_forward"       : {"active": True,"timeout": 2, "flasks": [[4, 5]]},
+    "wheel_forward"       : {"active": False,"timeout": 10, "flasks": [[4, 5,6]]},
     "wheel_backward"      : {"active": True,"timeout": 2},
     "use_skill_repeatedly": {"active": False,"timeout": 1, "toggle": True},
 }
