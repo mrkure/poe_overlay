@@ -8,7 +8,6 @@ from typing import Dict
 
 import mouse
 import keyboard
-from _params import remap_keyboard
 
 
 class KeyboardManager:
@@ -165,10 +164,9 @@ class KeyboardFunctions:
         worker["running"] = False
 
 
-kb_manager = KeyboardManager(remap_keyboard)
-
-
 if __name__ == "__main__":
+    from _params import remap_keyboard
+    kb_manager = KeyboardManager(remap_keyboard)
     kb_manager.hook_all()
     kb_manager.wait_for_exit()
     kb_manager.unhook_all()

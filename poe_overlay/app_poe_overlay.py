@@ -3,7 +3,7 @@
 import sys
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QSystemTrayIcon, QAction, QMenu, QApplication
-
+import importlib
 from lib._main import Driver
 from lib._params import params
 
@@ -26,8 +26,18 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
         self.activated.connect(self.on_click)
 
         self.main = Driver()
+        self.main.buttons_window.pushButton_reload.clicked.connect(self.on_reload_button_clicked)
 
     # _______________________________________ CALLBACKS _______________________________________
+    def on_reload_button_clicked(self):
+        self.main.close_windows()
+        import toml
+        with open("config.toml", "r") as f:
+          config = toml.load(f)
+        import time
+        time.sleep(1)
+
+        self.main = Driver()
 
     def on_click(self, button):
         """close or create main window app"""

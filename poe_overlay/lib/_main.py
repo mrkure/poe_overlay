@@ -16,26 +16,25 @@ from PyQt5 import QtWidgets  # type: ignore
 import pov_bg_process as bgp
 from pov_mouse import MouseManager
 from pov_keyboard import KeyboardManager
-from _params import params, remap_mouse, remap_keyboard
+# from _self.params import self.params, remap_mouse, remap_keyboard
 from pov_widgets import ButtonsWidget, FrameWidget
 
 
 class Driver(QtWidgets.QWidget):
     """main window class invisible window on the whole monitor
     class has to inherit from QWidget, to be able to work with signals"""
-
     # _______________________________________ INIT _______________________________________
-    def __init__(self):
-        super().__init__()
+    def __init__(self, ):
+        super().__init__(params)
+        self.params = params
         self._setup_multprocessing_shared_memory()
         self._setup_buttons_window()
         self.setup_frames()
         self._setup_timers()
 
-        self.mymouse = MouseManager(remap_mouse.copy())
-        self.my_keyboard = KeyboardManager(remap_keyboard.copy())
-
-        self.hwndMain = win32gui.FindWindow(None, params["target_app_name"])  # set foreground window check
+        self.mymouse = MouseManager(self.params["remap_mouse"].copy())
+        self.my_keyboard = KeyboardManager(self.params["remap_keyboard"].copy())
+        self.hwndMain = win32gui.FindWindow(None, self.params["target_app_name"])  # set foreground window check
 
         # DRIVER VARIABLES
         self.health_time_last  = 0
@@ -47,36 +46,37 @@ class Driver(QtWidgets.QWidget):
         self.game_active       = False
         self.game_active_last  = False
         self.healing_hooked    = False
+        
     # _______________________________________ INIT SETUP _______________________________________
     def _setup_buttons_window(self):
         """setup buttons frame connect signal and show"""
         self.buttons_window = ButtonsWidget()
         self.buttons_window.connect_buttons(self.on_button_window_button_clicked)
         self.buttons_window.connect_checkboxes(self.on_button_window_checkbox_state_changed)
-        self.buttons_window.move(*params["frame_buttons"]["geometry"][0:2])
+        self.buttons_window.move(*self.params["frame_buttons"]["geometry"][0:2])
         self.buttons_window.show()
 
     def setup_frames(self):
         """setup various frames on screen"""
-        self.frame_scan_area = FrameWidget(params["frame_scan"], params["frame_scan"], outer_frame=True)
+        self.frame_scan_area = FrameWidget(self.params["frame_scan"], self.params["frame_scan"], outer_frame=True)
         if self.buttons_window.checkBox_scan_area.isChecked():
             self.frame_scan_area.show()
-        self.frame_health_bar = FrameWidget(params["frame_scan"], params["frame_health_bar"], outer_frame=False)
+        self.frame_health_bar = FrameWidget(self.params["frame_scan"], self.params["frame_health_bar"], outer_frame=False)
         if self.buttons_window.checkBox_health_bar.isChecked():
             self.frame_health_bar.show()
-        self.frame_health_value = FrameWidget(params["frame_scan"], params["frame_health_value"], outer_frame=False)
+        self.frame_health_value = FrameWidget(self.params["frame_scan"], self.params["frame_health_value"], outer_frame=False)
         self.frame_health_value.label.setText("X")
         if self.buttons_window.checkBox_health_value.isChecked():
             self.frame_health_value.show()
 
     def _setup_multprocessing_shared_memory(self):
         """setup_multprocessing_shared_memory"""
-        w, h = params["frame_scan"]["geometry"][2:]
+        w, h = self.params["frame_scan"]["geometry"][2:]
         self.mp_capture = mp.Array(c.c_ubyte, h * w * 4)
         self.capture = np.frombuffer(self.mp_capture.get_obj(), dtype=np.uint8).reshape((h, w, 4))  # type: ignore
         self.mp_states = mp.Array(c.c_uint, 10)
         self.states = np.frombuffer(self.mp_states.get_obj(), dtype=np.uint)  # type: ignore
-        self.p = Process(target=bgp.capture_screen, args=(self.mp_capture, self.mp_states, params["frame_scan"]["geometry"], params["frame_health_bar"]["geometry"]), daemon=True)
+        self.p = Process(target=bgp.capture_screen, args=(self.mp_capture, self.mp_states, self.params["frame_scan"]["geometry"], self.params["frame_health_bar"]["geometry"]), daemon=True)
         self.states[0] = 1
         self.p.start()
 
@@ -155,7 +155,7 @@ class Driver(QtWidgets.QWidget):
         try:
             keyboard.press("alt")
             if self.hwndMain == 0:
-                self.hwndMain = win32gui.FindWindow(None, params["target_app_name"])
+                self.hwndMain = win32gui.FindWindow(None, self.params["target_app_name"])
             win32gui.SetForegroundWindow(self.hwndMain)
             keyboard.release("alt")
         except:
@@ -164,7 +164,7 @@ class Driver(QtWidgets.QWidget):
     def toggle_app_state_based_on_topmost_window(self):
         """hook, unhook all components, set visual state of button frame if target window is topmost or not"""
         self.game_active_last = self.game_active
-        if win32gui.GetWindowText(win32gui.GetForegroundWindow()) == params["target_app_name"]:
+        if win32gui.GetWindowText(win32gui.GetForegroundWindow()) == self.params["target_app_name"]:
             self.game_active = True
         else:
             self.game_active = False
@@ -182,9 +182,9 @@ class Driver(QtWidgets.QWidget):
         """heal logic"""
         health_value = self.states[5]
         self.frame_health_value.label.setText(str(health_value))
-        if health_value < params["autoheal"]["low_lim"] and health_value > params["autoheal"]["high_lim"] and self.game_active:
-            if self.healing_timeout >= params["autoheal"]["timeout"]:  # ms
-                for key in params["autoheal"]["keys"]:
+        if health_value < self.params["autoheal"]["low_lim"] and health_value > self.params["autoheal"]["high_lim"] and self.game_active:
+            if self.healing_timeout >= self.params["autoheal"]["timeout"]:  # ms
+                for key in self.params["autoheal"]["keys"]:
                     keyboard.press(key)
                     time.sleep(0.05)
                     keyboard.release("key")

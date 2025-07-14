@@ -7,20 +7,22 @@ NORMAL = "rgb(150, 150, 150)"
 DARK   = "rgb(100, 100, 100)"
 
 
-remap_mouse = {
-    "wheel_forward"       : {"active": False,"timeout": 10, "flasks": [[4, 5,6]]},
-    "wheel_backward"      : {"active": True,"timeout": 2},
-    "use_skill_repeatedly": {"active": False,"timeout": 1, "toggle": True},
-}
 
-remap_keyboard = {
-    "fast_click_left_with_ctrl_down" : {"active": True, "hotkey": "f4"},
-    "fast_click_left_with_shift_down": {"active": True, "hotkey": "f5"},
-    "use_portal_scroll"              : {"active": True, "hotkey": "`"},
-    "use_skill_repeatedly"           : {"active": True, "hotkey": "space", "timeout": 10},
-}
 
 params = {
+    "remap_mouse" : {
+    "wheel_forward"       : {"active": True,"timeout": 2, "flasks": [[4, 5,6]]},
+    "wheel_backward"      : {"active": True,"timeout": 2},
+    "use_skill_repeatedly": {"active": False,"timeout": 1, "toggle": True},
+    },
+
+    "remap_keyboard" : {
+        "fast_click_left_with_ctrl_down" : {"active": True, "hotkey": "f4"},
+        "fast_click_left_with_shift_down": {"active": True, "hotkey": "f5"},
+        "use_portal_scroll"              : {"active": True, "hotkey": "`"},
+        "use_skill_repeatedly"           : {"active": True, "hotkey": "space", "timeout": 10},
+    },
+
     "autoheal"             : {"active": True, "low_lim": 13, "high_lim": 60, "timeout": 1000, "keys": [1, 2, 3]},
     "target_app_name"      : "Path of Exile",
     "path_frame_buttons_ui": rf"{os.path.dirname(os.path.dirname(__file__))}\res\frame_buttons.ui",
@@ -31,9 +33,33 @@ params = {
     "frame_health_value"   : {"geometry": [240, 910, 70, 70], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},
     "frame_stop_watch"     : {"geometry": [340, 950, 80, 30], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},
     "frame_buttons"        : {
-        "geometry": [600, 1100, None, None],
+        "geometry": [600, 1100, 0, 0],
         "css"     : f"QFrame{{background-color: {DARK};}} QWidget{{background-color: {DARK};}} QPushButton{{background-color: {DARK};font: 10pt 'MS Shell Dlg 2';}}",
     },
     "button_inactive": f"background-color: {DARK}",
     "button_active"  : f"background-color: {NORMAL}",
 }
+
+# import toml
+# from collections import OrderedDict
+# params = OrderedDict(sorted(params.items()))
+
+# with open("config.toml", "w") as f:
+#     toml.dump(params, f)
+# #%%
+# with open("config.toml", "r") as f:
+#     config = toml.load(f)
+
+# import subprocess
+# import os
+
+# file_path = "c:/_repositories/_python/poe_overlay/poe_overlay/lib/config.toml"  # Replace with your file
+
+# Optional: make sure the path is absolute
+# file_path = os.path.abspath(file_path)
+
+# Open with VSCode
+# subprocess.run(["notepad",r"c:/Basic.ini"])
+
+
+

@@ -7,7 +7,7 @@ from itertools import count
 
 import mouse
 import keyboard
-from _params import remap_mouse
+
 
 class MouseManager:
     """mouse manager"""
@@ -120,6 +120,7 @@ class MouseFunctions:
 
 
 if __name__ == "__main__":
+    from _params import remap_mouse
     mo_manager = MouseManager(remap_mouse)
     mo_manager.hook_all()
     mo_manager.wait_for_exit()
