@@ -7,7 +7,7 @@ from itertools import count
 
 import mouse
 import keyboard
-
+from _params import params
 
 class MouseManager:
     """mouse manager"""

@@ -8,6 +8,7 @@ from typing import Dict
 
 import mouse
 import keyboard
+from _params import remap_keyboard
 
 
 class KeyboardManager:
@@ -16,10 +17,7 @@ class KeyboardManager:
     def __init__(self, workers):
         self.workers = workers
         self.hooked = False
-
-        for worker in self.workers:
-            worker["running"] = False
-            worker["thread"] = None
+        self.complete_workers_data()
 
     def add_task(self, worker: Dict) -> None:
         """add task to keyboard hooks using key shortcut
@@ -61,22 +59,30 @@ class KeyboardManager:
         """hook all shortcuts"""
         if not self.hooked:
             # keyboard.remap_key("caps lock", params["caps lock"])
-            for worker in self.workers:
+            for worker in self.workers.values():
                 print(f"{'adding keyboard':<20} {worker['hotkey']:<15}: {worker['function'].__name__}")
                 self.add_task(worker)
             self.hooked = True
-            # print("Keyboard hooked")
 
     def unhook_all(self):
         """unhook all workers"""
         if self.hooked:
-            for worker in self.workers:
-                # print("removing: ", worker["hotkey"], worker["id"])
+            for worker in self.workers.values():
                 print(f"{'removing keyboard':<20}  {worker['hotkey']:<15}: {worker['function'].__name__}")
                 keyboard.remove_hotkey(worker["id"])
                 worker["running"] = False
         self.hooked = False
-        # print("Keyboard unhooked")
+
+    def complete_workers_data(self):
+        """map functions to worker dictionaries"""
+        self.workers["fast_click_left_with_ctrl_down"]["function"] = KeyboardFunctions.fast_click_left_with_ctrl_down
+        self.workers["fast_click_left_with_shift_down"]["function"] = KeyboardFunctions.fast_click_left_with_shift_down
+        self.workers["use_skill_repeatedly"]["function"] = KeyboardFunctions.use_skill_repeatedly
+        self.workers["use_portal_scroll"]["function"] = KeyboardFunctions.use_portal_scroll
+
+        for worker in self.workers.values():
+            worker["running"] = False
+            worker["thread"] = None
 
 
 class KeyboardFunctions:
@@ -131,12 +137,12 @@ class KeyboardFunctions:
         worker["running"] = False
 
     @staticmethod
-    def use_skill_repeatidly(worker: dict, delay=10):
+    def use_skill_repeatedly(worker: dict, delay=10):
         """use skill repeatidly - for example molten shell"""
         for i in count():  # infinite loop
             if not worker["running"]:
                 break
-            if i == 0 or i % delay == 0:  # trigger on first iteration and when delay%i == 0
+            if i == 0 or i % worker["timeout"] == 0:  # trigger on first iteration and when delay%i == 0
                 # code here
                 keyboard.send("space")
                 time.sleep(1)
@@ -157,19 +163,10 @@ class KeyboardFunctions:
         worker["running"] = False
 
 
-f = KeyboardFunctions
-workers = [
-    {"hotkey": "`", "function": f.use_portal_scroll},
-    {"hotkey": "space", "function": f.use_skill_repeatidly},
-    {"hotkey": "F4", "function": f.fast_click_left_with_ctrl_down},
-    {"hotkey": "F5", "function": f.fast_click_left_with_shift_down},
-    # {"hotkey": "F6", "function": f.flask_use_rotation, "flasks_pointer": 0, "flasks": [[1], [2], [3], [4], [5]]},
-]
-kb_manager = KeyboardManager(workers)
+kb_manager = KeyboardManager(remap_keyboard)
 
 
 if __name__ == "__main__":
-    kb_manager = KeyboardManager(workers)
     kb_manager.hook_all()
     kb_manager.wait_for_exit()
     kb_manager.unhook_all()
