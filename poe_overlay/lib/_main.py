@@ -1,21 +1,22 @@
 """main logic module"""
 
+import time
 import ctypes as c
 import multiprocessing as mp
-import os
-import time
 from multiprocessing import Process
 
-import keyboard  # type: ignore
-import numpy as np
-import pov_bg_process as bgp
 import win32gui  # type: ignore
-from _params import params
+import keyboard  # type: ignore
+import numpy as np # type: ignore
+
+
 from PyQt5 import QtCore as qtc  # type: ignore
 from PyQt5 import QtWidgets  # type: ignore
 
-from pov_mouse import mo_manager
-from pov_keyboard import kb_manager
+import pov_bg_process as bgp
+from pov_mouse import MouseManager
+from pov_keyboard import KeyboardManager
+from _params import params, remap_mouse, remap_keyboard
 from pov_widgets import ButtonsWidget, FrameWidget
 
 
@@ -26,40 +27,32 @@ class Driver(QtWidgets.QWidget):
     # _______________________________________ INIT _______________________________________
     def __init__(self):
         super().__init__()
-        # uic.loadUi(ui_path_main, self)
-        self.buttons_window = ButtonsWidget()
-
         self._setup_multprocessing_shared_memory()
         self._setup_buttons_window()
         self.setup_frames()
         self._setup_timers()
 
-        self.mymouse = mo_manager
-        self.my_keyboard = kb_manager
+        self.mymouse = MouseManager(remap_mouse.copy())
+        self.my_keyboard = KeyboardManager(remap_keyboard.copy())
 
         self.hwndMain = win32gui.FindWindow(None, params["target_app_name"])  # set foreground window check
 
         # DRIVER VARIABLES
-        self.health_time_last = 0
-        self.flask_pointer = 2
-        self.a = True
-        self.healing_timeout = 0
-        self.increment = 0
+        self.health_time_last  = 0
+        self.flask_pointer     = 2
+        self.a                 = True
+        self.healing_timeout   = 0
+        self.increment         = 0
         self.stopwatch_running = False
-        self.game_active = False
-        self.game_active_last = False
-        self.healing_hooked = False
-
-        self.second = 0
-        self.minute = 0
-        self.hour = 0
-
+        self.game_active       = False
+        self.game_active_last  = False
+        self.healing_hooked    = False
     # _______________________________________ INIT SETUP _______________________________________
     def _setup_buttons_window(self):
         """setup buttons frame connect signal and show"""
+        self.buttons_window = ButtonsWidget()
         self.buttons_window.connect_buttons(self.on_button_window_button_clicked)
         self.buttons_window.connect_checkboxes(self.on_button_window_checkbox_state_changed)
-
         self.buttons_window.move(*params["frame_buttons"]["geometry"][0:2])
         self.buttons_window.show()
 
@@ -196,9 +189,6 @@ class Driver(QtWidgets.QWidget):
                     time.sleep(0.05)
                     keyboard.release("key")
                 self.healing_timeout = 0
-
-
-
 
     def close_windows(self):
         """close windows"""

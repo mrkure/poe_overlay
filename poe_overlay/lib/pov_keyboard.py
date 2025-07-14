@@ -36,6 +36,8 @@ class KeyboardManager:
         Args:
             hotkey (str): _description_
         """
+        if not worker["active"]:
+            return
         if not worker["running"]:
             print(f"[{worker['hotkey']}] Starting...{worker['function'].__name__}")
             worker["running"] = True

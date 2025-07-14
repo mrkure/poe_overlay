@@ -8,20 +8,20 @@ DARK   = "rgb(100, 100, 100)"
 
 
 remap_mouse = {
-    "wheel_forward" : {"timeout": 2, "flasks": [[4, 5]]},
-    "wheel_backward": {"timeout": 2},
-    "middle_click"  : {"delay": 1, "toggle": True},
+    "wheel_forward"       : {"active": True,"timeout": 2, "flasks": [[4, 5]]},
+    "wheel_backward"      : {"active": True,"timeout": 2},
+    "use_skill_repeatedly": {"active": False,"timeout": 1, "toggle": True},
 }
 
 remap_keyboard = {
-    "fast_click_left_with_ctrl_down" : {"hotkey": "f4"},
-    "fast_click_left_with_shift_down": {"hotkey": "f5"},
-    "use_portal_scroll"              : {"hotkey": "`"},
-    "use_skill_repeteadly"           : {"hotkey": "f5", "timeout": 10},
+    "fast_click_left_with_ctrl_down" : {"active": True, "hotkey": "f4"},
+    "fast_click_left_with_shift_down": {"active": True, "hotkey": "f5"},
+    "use_portal_scroll"              : {"active": True, "hotkey": "`"},
+    "use_skill_repeatedly"           : {"active": True, "hotkey": "space", "timeout": 10},
 }
 
 params = {
-    "autoheal"             : {"low_lim": 13, "high_lim": 60, "timeout": 1000, "keys": [1, 2, 3]},
+    "autoheal"             : {"active": True, "low_lim": 13, "high_lim": 60, "timeout": 1000, "keys": [1, 2, 3]},
     "target_app_name"      : "Path of Exile",
     "path_frame_buttons_ui": rf"{os.path.dirname(os.path.dirname(__file__))}\res\frame_buttons.ui",
     "path_icon_running"    : rf"{os.path.dirname(os.path.dirname(__file__))}\res\running.png",
