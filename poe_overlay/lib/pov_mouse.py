@@ -5,7 +5,7 @@ import threading
 import random
 from itertools import count
 
-import mouse
+import mouse  # type: ignore
 import keyboard
 
 
@@ -15,26 +15,24 @@ class MouseManager:
     def __init__(self, workers):
         self.workers = workers
         self.hooked = False
-        for key, value in self.workers.items():
-            value["hotkey"] = key
-            value["running"] = False
-            value["thread"] = None
-            value["flasks_pointer"] = 0
+        self.complete_workers_data()
 
     def _toggle_worker(self, event):
         if hasattr(event, "delta"):
             if event.delta == 1.0:  # on wheel forward
-                worker = workers["wheel_forward"]
+                worker = self.workers["wheel_forward"]
             elif event.delta == -1.0:  # on wheel backward
-                worker = workers["wheel_backward"]
+                worker = self.workers["wheel_backward"]
             else:
                 return
         elif hasattr(event, "button"):
             if event.button == "middle" and event.event_type == "down":
-                worker = workers["middle_click"]
+                worker = self.workers["use_skill_repeatidly"]
             else:
                 return
         else:
+            return
+        if not worker["active"]:
             return
         if not worker["running"]:
             print(f"[{worker['hotkey']}] Starting...{worker['function'].__name__}")
@@ -55,21 +53,37 @@ class MouseManager:
         """hook mouse"""
         if not self.hooked:
             for worker in self.workers.values():
-                print(f"{'adding mouse':<20}  {worker['hotkey']:<15}: {worker['function'].__name__}")
+                to_print = {}
+                for key, value in worker.items():
+                    if not any(key == i for i in ["function", "running", "thread", "hotkey", "flasks_pointer"]):
+                        to_print[key] = value
+                    if key == "function":
+                        to_print[key] = value.__name__
+                print(f"{'adding mouse':<20}  {worker['hotkey']:<25}: {to_print}")
+
             mouse.hook(self._toggle_worker)
             self.hooked = True
-            # print("Mouse hooked")
 
     def unhook_all(self):
         """unhook mouse"""
         if self.hooked:
             for worker in self.workers.values():
                 print(f"{'removing mouse':<20}  {worker['hotkey']:<15}: {worker['function'].__name__}")
-            for _, value in workers.items():
-                value["running"] = False
+                worker["running"] = False
             mouse.unhook_all()
             self.hooked = False
-            # print("Mouse unhooked")
+
+    def complete_workers_data(self):
+        """map functions to worker dictionaries"""
+        self.workers["wheel_forward"]["function"] = MouseFunctions.wheel_forward
+        self.workers["wheel_backward"]["function"] = MouseFunctions.wheel_backward
+        self.workers["use_skill_repeatedly"]["function"] = MouseFunctions.use_skill_repeatedly
+
+        for key, value in self.workers.items():
+            value["hotkey"] = key
+            value["running"] = False
+            value["thread"] = None
+            value["flasks_pointer"] = 0
 
 
 class MouseFunctions:
@@ -100,12 +114,12 @@ class MouseFunctions:
             worker["running"] = False
 
     @staticmethod
-    def use_skill_repeatidly(worker):
+    def use_skill_repeatedly(worker):
         """use skill repeatidly - for example molten shell"""
         for i in count():  # infinite loop
             if not worker["running"]:
                 break
-            if i == 0 or i % worker["delay"] == 0:  # trigger on first iteration and when delay%i == 0
+            if i == 0 or i % worker["timeout"] == 0:  # trigger on first iteration and when delay%i == 0
                 # code here
                 keyboard.send("9")
                 time.sleep(random.randint(1, 500) / 500)
@@ -113,17 +127,10 @@ class MouseFunctions:
         worker["running"] = False
 
 
-mf = MouseFunctions
-workers = {
-    "wheel_forward" : {"function": mf.wheel_forward, "timeout": 2, "flasks": [[4, 5]]},
-    "wheel_backward": {"function": mf.wheel_backward, "timeout": 2},
-    "middle_click"  : {"function": mf.use_skill_repeatidly, "delay": 1, "toggle": True},
-}
-mo_manager = MouseManager(workers)
-
-
 if __name__ == "__main__":
-    mo_manager = MouseManager(workers)
+    from _params import params
+
+    mo_manager = MouseManager(params["remap_mouse"])
     mo_manager.hook_all()
     mo_manager.wait_for_exit()
     mo_manager.unhook_all()

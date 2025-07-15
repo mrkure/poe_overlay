@@ -5,7 +5,7 @@ Created on Tue Oct  4 21:21:48 2022
 @author: mrkure
 """
 
-import numpy as np
+import numpy as np # type: ignore
 import cv2 as cv  # type: ignore
 
 class HealthBarEvaluator:
