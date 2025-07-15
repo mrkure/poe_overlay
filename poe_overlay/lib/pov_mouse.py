@@ -55,7 +55,7 @@ class MouseManager:
             for worker in self.workers.values():
                 to_print = {}
                 for key, value in worker.items():
-                    if not any(key == i for i in ["function", "running", "thread", "hotkey", "flasks_pointer"]):
+                    if not any(key == i for i in ["function", "running", "thread", "hotkey", "flasks_pointer", "id"]):
                         to_print[key] = value
                     if key == "function":
                         to_print[key] = value.__name__

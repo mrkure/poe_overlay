@@ -2,7 +2,7 @@
 [remap_mouse.wheel_forward]
 active  = true
 timeout = 2
-flasks  = [ [ 8,8,8,],]
+flasks  = [ [ 4,],[5,6,7,],]
 
 [remap_mouse.wheel_backward]
 active  = true
@@ -39,9 +39,9 @@ keys     = [ 1, 2, 3,]
 # ______________________________ paths _____________________________________
 [paths]
 target_app_name       = "Path of Exile"
-path_frame_buttons_ui = "c:\\_software\\poe_overlay\\poe_overlay\\res\\frame_buttons.ui"
-path_icon_running     = "c:\\_software\\poe_overlay\\poe_overlay\\res\\running.png"
-path_icon_stopped     = "c:\\_software\\poe_overlay\\poe_overlay\\res\\stopped.png"
+path_frame_buttons_ui = "res\\frame_buttons.ui"
+path_icon_running     = "res\\running.png"
+path_icon_stopped     = "res\\stopped.png"
 
 # ______________________________ gui _____________________________________
 

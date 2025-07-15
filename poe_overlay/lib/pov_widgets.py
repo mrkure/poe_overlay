@@ -1,5 +1,6 @@
 """gui elements module"""
 
+import os
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtWidgets import QCheckBox, QPushButton
 from PyQt5 import QtCore as qtc  # type: ignore
@@ -15,8 +16,8 @@ class ButtonsWidget(QtWidgets.QWidget):
     def __init__(self, params):
         super().__init__()
         self.params = params
-
-        uic.loadUi(self.params["paths"]["path_frame_buttons_ui"], self)
+        # print((os.path.join(os.path.dirname(os.path.dirname(__file__))), params["paths"]["path_frame_buttons_ui"])
+        uic.loadUi(os.path.join(os.path.dirname(os.path.dirname(__file__)), params["paths"]["path_frame_buttons_ui"]), self)
         self.setWindowFlags(qtc.Qt.WindowStaysOnTopHint)
         self.setWindowFlags(qtc.Qt.FramelessWindowHint | qtc.Qt.WindowStaysOnTopHint | qtc.Qt.Tool)
         self.oldPos = None

@@ -20,8 +20,8 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
         super().__init__()
         self.CONFIG_PATH = rf"{os.path.dirname(__file__)}\config.toml"
         self.params = self.read_config_toml()
-        self.icon_running = QIcon(params["paths"]["path_icon_running"])
-        self.icon_stopped = QIcon(params["paths"]["path_icon_stopped"])
+        self.icon_running = QIcon(os.path.join(os.path.dirname(__file__),params["paths"]["path_icon_running"]))
+        self.icon_stopped = QIcon(os.path.join(os.path.dirname(__file__),params["paths"]["path_icon_stopped"]))
         self.menu = QMenu()
         self.setContextMenu(self.menu)
         self.setIcon(self.icon_running)
