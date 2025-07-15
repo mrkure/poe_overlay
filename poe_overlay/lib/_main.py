@@ -7,8 +7,7 @@ from multiprocessing import Process
 
 import win32gui  # type: ignore
 import keyboard  # type: ignore
-import numpy as np # type: ignore
-
+import numpy as np  # type: ignore
 
 from PyQt5 import QtCore as qtc  # type: ignore
 from PyQt5 import QtWidgets  # type: ignore
@@ -16,44 +15,48 @@ from PyQt5 import QtWidgets  # type: ignore
 import pov_bg_process as bgp
 from pov_mouse import MouseManager
 from pov_keyboard import KeyboardManager
-# from _self.params import self.params, remap_mouse, remap_keyboard
 from pov_widgets import ButtonsWidget, FrameWidget
 
 
 class Driver(QtWidgets.QWidget):
     """main window class invisible window on the whole monitor
     class has to inherit from QWidget, to be able to work with signals"""
+
     # _______________________________________ INIT _______________________________________
-    def __init__(self, ):
-        super().__init__(params)
+    def __init__(self, params):
+        super().__init__()
+
         self.params = params
-        self._setup_multprocessing_shared_memory()
+
         self._setup_buttons_window()
+        self._setup_multprocessing_shared_memory()
         self.setup_frames()
         self._setup_timers()
 
         self.mymouse = MouseManager(self.params["remap_mouse"].copy())
         self.my_keyboard = KeyboardManager(self.params["remap_keyboard"].copy())
-        self.hwndMain = win32gui.FindWindow(None, self.params["target_app_name"])  # set foreground window check
+        self.hwndMain = win32gui.FindWindow(None, self.params["paths"]["target_app_name"])  # set foreground window check
 
         # DRIVER VARIABLES
-        self.health_time_last  = 0
-        self.flask_pointer     = 2
-        self.a                 = True
-        self.healing_timeout   = 0
-        self.increment         = 0
+        self.health_time_last = 0
+        self.flask_pointer = 2
+        self.a = True
+        self.healing_timeout = 0
+        self.increment = 0
         self.stopwatch_running = False
-        self.game_active       = False
-        self.game_active_last  = False
-        self.healing_hooked    = False
-        
+        self.game_active = False
+        self.game_active_last = False
+        self.healing_hooked = False
+        self.reload_counter = 0
+
     # _______________________________________ INIT SETUP _______________________________________
     def _setup_buttons_window(self):
         """setup buttons frame connect signal and show"""
-        self.buttons_window = ButtonsWidget()
+        self.buttons_window = ButtonsWidget(self.params)
         self.buttons_window.connect_buttons(self.on_button_window_button_clicked)
         self.buttons_window.connect_checkboxes(self.on_button_window_checkbox_state_changed)
         self.buttons_window.move(*self.params["frame_buttons"]["geometry"][0:2])
+
         self.buttons_window.show()
 
     def setup_frames(self):
@@ -155,7 +158,7 @@ class Driver(QtWidgets.QWidget):
         try:
             keyboard.press("alt")
             if self.hwndMain == 0:
-                self.hwndMain = win32gui.FindWindow(None, self.params["target_app_name"])
+                self.hwndMain = win32gui.FindWindow(None, self.params["paths"]["target_app_name"])
             win32gui.SetForegroundWindow(self.hwndMain)
             keyboard.release("alt")
         except:
@@ -164,7 +167,7 @@ class Driver(QtWidgets.QWidget):
     def toggle_app_state_based_on_topmost_window(self):
         """hook, unhook all components, set visual state of button frame if target window is topmost or not"""
         self.game_active_last = self.game_active
-        if win32gui.GetWindowText(win32gui.GetForegroundWindow()) == self.params["target_app_name"]:
+        if win32gui.GetWindowText(win32gui.GetForegroundWindow()) == self.params["paths"]["target_app_name"]:
             self.game_active = True
         else:
             self.game_active = False
@@ -195,5 +198,8 @@ class Driver(QtWidgets.QWidget):
         self.buttons_window.close()
         for timer in self.timers:
             timer.stop()
+        self.mymouse.unhook_all()
+        self.my_keyboard.unhook_all()
+        time.sleep(1)
         self.p.kill()
         self.close()

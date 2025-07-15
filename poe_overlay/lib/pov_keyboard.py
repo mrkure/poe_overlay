@@ -6,7 +6,7 @@ import time
 from itertools import count
 from typing import Dict
 
-import mouse
+import mouse # type: ignore
 import keyboard
 
 
@@ -59,9 +59,14 @@ class KeyboardManager:
     def hook_all(self):
         """hook all shortcuts"""
         if not self.hooked:
-            # keyboard.remap_key("caps lock", params["caps lock"])
             for worker in self.workers.values():
-                print(f"{'adding keyboard':<20} {worker['hotkey']:<15}: {worker['function'].__name__}")
+                to_print = {}
+                for key, value in worker.items():
+                    if not any(key == i for i in ["function", "running", "thread", "hotkey", "flasks_pointer"]):
+                        to_print[key] = value
+                    if key == "function":
+                        to_print[key] = value.__name__
+                print(f"{'adding keyboard':<20}  {worker['hotkey']:<25}: {to_print}")
                 self.add_task(worker)
             self.hooked = True
 
@@ -138,7 +143,7 @@ class KeyboardFunctions:
         worker["running"] = False
 
     @staticmethod
-    def use_skill_repeatedly(worker: dict, delay=10):
+    def use_skill_repeatedly(worker: dict):
         """use skill repeatidly - for example molten shell"""
         for i in count():  # infinite loop
             if not worker["running"]:
@@ -165,8 +170,8 @@ class KeyboardFunctions:
 
 
 if __name__ == "__main__":
-    from _params import remap_keyboard
-    kb_manager = KeyboardManager(remap_keyboard)
+    from _params import params
+    kb_manager = KeyboardManager(params["remap_keyboard"])
     kb_manager.hook_all()
     kb_manager.wait_for_exit()
     kb_manager.unhook_all()

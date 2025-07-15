@@ -8,20 +8,19 @@ from PyQt5 import (
     uic,
 )
 
-from _params import params
-
 
 class ButtonsWidget(QtWidgets.QWidget):
     """buttons window"""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, params):
+        super().__init__()
+        self.params = params
 
-        uic.loadUi(params["path_frame_buttons_ui"], self)
+        uic.loadUi(self.params["paths"]["path_frame_buttons_ui"], self)
         self.setWindowFlags(qtc.Qt.WindowStaysOnTopHint)
         self.setWindowFlags(qtc.Qt.FramelessWindowHint | qtc.Qt.WindowStaysOnTopHint | qtc.Qt.Tool)
         self.oldPos = None
-        self.setStyleSheet(params["frame_buttons"]["css"])
+        self.setStyleSheet(self.params["frame_buttons"]["css"])
 
     def connect_buttons(self, function):
         """_summary_
@@ -42,17 +41,16 @@ class ButtonsWidget(QtWidgets.QWidget):
         for widget in self.children():
             if isinstance(widget, QCheckBox):
                 widget.clicked.connect(function)
-                # widget.setStyleSheet(params["button_inactive"])
 
     def set_visual_style_hooked(self):
         """set hooked visual state of hooked and unhooked buttons"""
-        self.pushButton_hooked.setStyleSheet(params["button_active"])
-        self.pushButton_unhooked.setStyleSheet(params["button_inactive"])
+        self.pushButton_hooked.setStyleSheet(self.params["frame_buttons"]["button_active"])
+        self.pushButton_unhooked.setStyleSheet(self.params["frame_buttons"]["button_inactive"])
 
     def set_visual_style_unhooked(self):
         """set hooked visual state of hooked and unhooked buttons"""
-        self.pushButton_hooked.setStyleSheet(params["button_inactive"])
-        self.pushButton_unhooked.setStyleSheet(params["button_active"])
+        self.pushButton_hooked.setStyleSheet(self.params["frame_buttons"]["button_inactive"])
+        self.pushButton_unhooked.setStyleSheet(self.params["frame_buttons"]["button_active"])
 
     def mousePressEvent(self, evt):
         """press event to move app

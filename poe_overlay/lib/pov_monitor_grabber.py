@@ -2,7 +2,7 @@
 
 import mss  # type: ignore
 import mss.windows  # type: ignore
-import numpy as np
+import numpy as np # type: ignore
 
 
 class MonitorGrabber:

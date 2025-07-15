@@ -5,7 +5,7 @@ import threading
 import random
 from itertools import count
 
-import mouse
+import mouse  # type: ignore
 import keyboard
 
 
@@ -53,7 +53,14 @@ class MouseManager:
         """hook mouse"""
         if not self.hooked:
             for worker in self.workers.values():
-                print(f"{'adding mouse':<20}  {worker['hotkey']:<15}: {worker['function'].__name__}")
+                to_print = {}
+                for key, value in worker.items():
+                    if not any(key == i for i in ["function", "running", "thread", "hotkey", "flasks_pointer"]):
+                        to_print[key] = value
+                    if key == "function":
+                        to_print[key] = value.__name__
+                print(f"{'adding mouse':<20}  {worker['hotkey']:<25}: {to_print}")
+
             mouse.hook(self._toggle_worker)
             self.hooked = True
 
@@ -77,6 +84,7 @@ class MouseManager:
             value["running"] = False
             value["thread"] = None
             value["flasks_pointer"] = 0
+
 
 class MouseFunctions:
     """MouseFunctions"""
@@ -120,8 +128,9 @@ class MouseFunctions:
 
 
 if __name__ == "__main__":
-    from _params import remap_mouse
-    mo_manager = MouseManager(remap_mouse)
+    from _params import params
+
+    mo_manager = MouseManager(params["remap_mouse"])
     mo_manager.hook_all()
     mo_manager.wait_for_exit()
     mo_manager.unhook_all()
