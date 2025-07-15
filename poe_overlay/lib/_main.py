@@ -185,12 +185,12 @@ class Driver(QtWidgets.QWidget):
         """heal logic"""
         health_value = self.states[5]
         self.frame_health_value.label.setText(str(health_value))
-        if health_value < self.params["autoheal"]["low_lim"] and health_value > self.params["autoheal"]["high_lim"] and self.game_active:
+        if (self.params["autoheal"]["low_lim"] < health_value < self.params["autoheal"]["high_lim"]) and self.game_active:
             if self.healing_timeout >= self.params["autoheal"]["timeout"]:  # ms
                 for key in self.params["autoheal"]["keys"]:
-                    keyboard.press(key)
+                    keyboard.press(str(key))
                     time.sleep(0.05)
-                    keyboard.release("key")
+                    keyboard.release(str(key))
                 self.healing_timeout = 0
 
     def close_windows(self):
