@@ -3,7 +3,7 @@
 import os
 import sys
 import subprocess
-
+from pathlib import Path
 import toml
 
 from PyQt5.QtGui import QIcon
@@ -18,8 +18,6 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
 
     def __init__(self):
         super().__init__()
-        self.CONFIG_PATH = rf"{os.path.dirname(__file__)}\config.toml"
-        self.params = self.read_config_toml()
         self.icon_running = QIcon(params["paths"]["path_icon_running"])
         self.icon_stopped = QIcon(params["paths"]["path_icon_stopped"])
         self.menu = QMenu()
@@ -27,23 +25,34 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
         self.setIcon(self.icon_running)
         self.option_close = QAction("Close")
         self.menu.addAction(self.option_close)
-        self.running = True
-        self.setVisible(True)
         self.option_close.triggered.connect(self.on_close)
         self.activated.connect(self.on_tray_click)
-        self.main = Driver(self.params)
-
-        self.main.buttons_window.pushButton_reload.clicked.connect(self.on_buttons_window_reload_button_clicked)
+        self.running = True
+        self.setVisible(True)
+        self.configs = {}
+        self.CONFIG_PATH = rf"{os.path.dirname(__file__)}"
+        self.setup_windows()
 
     # _______________________________________ CALLBACKS _______________________________________
+    def on_combobox_profile_index_change(self):
+        """on_combobox_profile_index_change -> reload windows"""
+        path = self.main.buttons_window.comboBox_profile.itemData(self.main.buttons_window.comboBox_profile.currentIndex())
+        for _, value in self.configs.items():
+            value["active"] = False
+        self.configs[path]["active"] = True
+        self.write_configs_toml()
+        self.setup_windows()
 
     def on_buttons_window_reload_button_clicked(self):
         """reload window"""
-        subprocess.run(["notepad", self.CONFIG_PATH], check=False)
-        self.params = self.read_config_toml()
-        self.main.close_windows()
-        self.main = Driver(self.params)
-        self.main.buttons_window.pushButton_reload.clicked.connect(self.on_buttons_window_reload_button_clicked)
+        key = None
+        for key, value in self.configs.items():
+            if value["active"]:
+                break
+        if key:
+            subprocess.run(["notepad", key], check=False)
+            self.read_configs_toml()
+            self.setup_windows()
 
     def on_tray_click(self, button):
         """close or create main window app"""
@@ -56,7 +65,7 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
             elif not self.running:
                 self.setIcon(self.icon_running)
                 self.running = True
-                self.main = Driver(self.params)
+                self.main = Driver(self.configs)
 
     def on_close(self):
         """close app"""
@@ -66,11 +75,45 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
 
     # _______________________________________ METHODS _______________________________________
 
-    def read_config_toml(self):
+    def setup_windows(self):
+        """reactivate windows"""
+        try:
+            self.main.close_windows()
+        except:
+            pass
+        self.read_configs_toml()
+        self.main = Driver(self.configs)
+        self.main.buttons_window.pushButton_edit.clicked.connect(self.on_buttons_window_reload_button_clicked)
+        self.main.buttons_window.comboBox_profile.currentIndexChanged.connect(self.on_combobox_profile_index_change)
+
+
+    def read_configs_toml(self):
         """load config"""
-        with open(self.CONFIG_PATH, "r", encoding="utf-8") as f:
-            config = toml.load(f)
-            return config
+        toml_files = [str(f) for f in Path(self.CONFIG_PATH).glob("*.toml")]
+        for file in toml_files:
+            with open(file, "r", encoding="utf-8") as f:
+                self.configs[file] = toml.load(f)
+
+
+    def write_configs_toml(self):
+        """writes path to currently active toml config"""
+        def remove_keys_recursive(obj, keys_to_remove):
+            if isinstance(obj, dict):
+                return {
+                    k: remove_keys_recursive(v, keys_to_remove)
+                    for k, v in obj.items()
+                    if k not in keys_to_remove
+                }
+            elif isinstance(obj, list):
+                return [remove_keys_recursive(item, keys_to_remove) for item in obj]
+            else:
+                return obj
+        
+        for key, value in self.configs.items():
+            config = remove_keys_recursive(value, ["function", "id", "flasks_pointer", "running"])
+            with open(key, "w", encoding="utf-8") as f:
+                toml.dump(config, f)
+
 
 
 if __name__ == "__main__":

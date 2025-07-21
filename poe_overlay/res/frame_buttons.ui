@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>363</width>
+    <width>443</width>
     <height>26</height>
    </rect>
   </property>
@@ -24,13 +24,13 @@
     <number>5</number>
    </property>
    <property name="topMargin">
-    <number>0</number>
+    <number>3</number>
    </property>
    <property name="rightMargin">
-    <number>15</number>
+    <number>25</number>
    </property>
    <property name="bottomMargin">
-    <number>0</number>
+    <number>3</number>
    </property>
    <item>
     <widget class="QPushButton" name="pushButton_hooked">
@@ -47,16 +47,34 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="pushButton_reload">
+    <widget class="QPushButton" name="pushButton_edit">
      <property name="text">
-      <string>Reload</string>
+      <string>Edit</string>
      </property>
     </widget>
    </item>
    <item>
+    <widget class="QComboBox" name="comboBox_profile"/>
+   </item>
+   <item>
     <widget class="QPushButton" name="pushButton_close">
+     <property name="minimumSize">
+      <size>
+       <width>25</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>25</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
-      <string>Close</string>
+      <string>X</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
