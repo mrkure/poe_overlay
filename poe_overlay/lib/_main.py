@@ -1,6 +1,7 @@
 """main logic module"""
 
 import time
+import os
 import ctypes as c
 import multiprocessing as mp
 from multiprocessing import Process
@@ -23,10 +24,15 @@ class Driver(QtWidgets.QWidget):
     class has to inherit from QWidget, to be able to work with signals"""
 
     # _______________________________________ INIT _______________________________________
-    def __init__(self, params):
+    def __init__(self, configs):
         super().__init__()
 
-        self.params = params
+        self.configs = configs
+        for key, value in self.configs.items():
+            if value["active"]:
+                break
+        self.name = os.path.basename(key).replace(".toml", "")
+        self.params = value
 
         self._setup_buttons_window()
         self._setup_multprocessing_shared_memory()
@@ -56,6 +62,10 @@ class Driver(QtWidgets.QWidget):
         self.buttons_window.connect_buttons(self.on_button_window_button_clicked)
         self.buttons_window.connect_checkboxes(self.on_button_window_checkbox_state_changed)
         self.buttons_window.move(*self.params["frame_buttons"]["geometry"][0:2])
+
+        for key, value in self.configs.items():
+            self.buttons_window.comboBox_profile.addItem(os.path.basename(key).replace(".toml", ""), userData=key)
+            self.buttons_window.comboBox_profile.setCurrentIndex(self.buttons_window.comboBox_profile.findText(self.name))
 
         self.buttons_window.show()
 
@@ -120,7 +130,7 @@ class Driver(QtWidgets.QWidget):
             self.mymouse.unhook_all()
             self.my_keyboard.unhook_all()
 
-        elif string == "Close":
+        elif string == "X":
             self.buttons_window.close()
             self.mymouse.unhook_all()
             self.my_keyboard.unhook_all()
@@ -200,6 +210,5 @@ class Driver(QtWidgets.QWidget):
             timer.stop()
         self.mymouse.unhook_all()
         self.my_keyboard.unhook_all()
-        time.sleep(1)
         self.p.kill()
         self.close()

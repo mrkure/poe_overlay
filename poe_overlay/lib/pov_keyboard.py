@@ -6,7 +6,7 @@ import time
 from itertools import count
 from typing import Dict
 
-import mouse # type: ignore
+import mouse  # type: ignore
 import keyboard
 
 
@@ -171,6 +171,7 @@ class KeyboardFunctions:
 
 if __name__ == "__main__":
     from _params import params
+
     kb_manager = KeyboardManager(params["remap_keyboard"])
     kb_manager.hook_all()
     kb_manager.wait_for_exit()
