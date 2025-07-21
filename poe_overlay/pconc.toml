@@ -38,7 +38,7 @@ css = "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 2
 [remap_mouse.wheel_forward]
 active = true
 timeout = 2
-flasks = [ [ 3,4,5,]
+flasks = [ [ 3,4,5,],]
 hotkey = "wheel_forward"
 
 [remap_mouse.wheel_backward]
