@@ -83,10 +83,13 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
             pass
         self.read_configs_toml()
         self.main = Driver(self.configs)
+        self.main.recorder.set_callback(self.setup_windows)
         self.main.buttons_window.pushButton_edit.clicked.connect(self.on_buttons_window_reload_button_clicked)
         self.main.buttons_window.comboBox_profile.currentIndexChanged.connect(self.on_combobox_profile_index_change)
+        # self.main.recorder.on_saved(self.pprint)
 
-
+    def pprint(self):
+        print("saved")
     def read_configs_toml(self):
         """load config"""
         toml_files = [str(f) for f in Path(self.CONFIG_PATH).glob("*.toml")]

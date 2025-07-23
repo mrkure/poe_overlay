@@ -16,8 +16,8 @@ from PyQt5 import QtWidgets  # type: ignore
 import pov_bg_process as bgp
 from pov_mouse import MouseManager
 from pov_keyboard import KeyboardManager
-from pov_widgets import ButtonsWidget, FrameWidget
-
+from pov_widgets import ButtonsWidget, FrameWidget, RecorderWidget
+from pov_recorder import Recorder
 
 class Driver(QtWidgets.QWidget):
     """main window class invisible window on the whole monitor
@@ -37,8 +37,10 @@ class Driver(QtWidgets.QWidget):
         self._setup_buttons_window()
         self._setup_multprocessing_shared_memory()
         self.setup_frames()
-        self._setup_timers()
 
+        self._setup_timers()
+        self.recorder = Recorder(self.params)
+        self.recorder.read_records_json()
         self.mymouse = MouseManager(self.params["remap_mouse"].copy())
         self.my_keyboard = KeyboardManager(self.params["remap_keyboard"].copy())
         self.hwndMain = win32gui.FindWindow(None, self.params["paths"]["target_app_name"])  # set foreground window check
@@ -68,6 +70,7 @@ class Driver(QtWidgets.QWidget):
             self.buttons_window.comboBox_profile.setCurrentIndex(self.buttons_window.comboBox_profile.findText(self.name))
 
         self.buttons_window.show()
+
 
     def setup_frames(self):
         """setup various frames on screen"""
@@ -114,6 +117,12 @@ class Driver(QtWidgets.QWidget):
         self.healing_timeout += 10
         self.heal_on_condition()
 
+
+    def on_recorder_line_edit_save_enter_pressed(self):
+        text = self.recorder_widget.lineEdit_save.text()
+        print(text)
+        self.recorder_widget.hide()
+
     def on_button_window_button_clicked(self):
         """callback method, react to buttons press on buttons frame"""
         string = self.sender().text()
@@ -124,16 +133,26 @@ class Driver(QtWidgets.QWidget):
             self.buttons_window.set_visual_style_hooked()
             self.mymouse.hook_all()
             self.my_keyboard.hook_all()
+            self.recorder.hook_all()
 
         elif string == "Unhooked":
             self.buttons_window.set_visual_style_unhooked()
             self.mymouse.unhook_all()
             self.my_keyboard.unhook_all()
+            self.recorder.unhook_all()
+
+        elif string == "rec":
+            self.my_keyboard.unhook_all()
+            self.mymouse.unhook_all()
+            self.recorder.record()
+
+
 
         elif string == "X":
             self.buttons_window.close()
             self.mymouse.unhook_all()
             self.my_keyboard.unhook_all()
+            self.recorder.unhook_all()
             for timer in self.timers:
                 timer.stop()
             self.close()
@@ -210,5 +229,6 @@ class Driver(QtWidgets.QWidget):
             timer.stop()
         self.mymouse.unhook_all()
         self.my_keyboard.unhook_all()
+        self.recorder.unhook_all()
         self.p.kill()
         self.close()

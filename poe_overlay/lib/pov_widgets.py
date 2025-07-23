@@ -94,3 +94,18 @@ class FrameWidget(QtWidgets.QWidget):
         self.label.setGeometry(0, 0, wl, hl)
         self.label.setStyleSheet(css)
         self.label.setAlignment(Qt.AlignCenter)
+
+
+class RecorderWidget(QtWidgets.QFrame):
+    """save window"""
+    def __init__(self, params):
+        super().__init__()
+        self.params = params
+        # print((os.path.join(os.path.dirname(os.path.dirname(__file__))), params["paths"]["path_frame_buttons_ui"])
+        uic.loadUi(os.path.join(os.path.dirname(os.path.dirname(__file__)), params["paths"]["path_frame_recorder_ui"]), self)
+        self.setWindowFlags(qtc.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(qtc.Qt.FramelessWindowHint | qtc.Qt.WindowStaysOnTopHint | qtc.Qt.Tool)
+        self.move(400,400)
+        # self.line_edit_save.returnPressed.connect(self.on_enter_pressed)
+        # self.show()
+
