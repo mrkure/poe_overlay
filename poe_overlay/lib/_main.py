@@ -19,6 +19,7 @@ from pov_keyboard import KeyboardManager
 from pov_widgets import ButtonsWidget, FrameWidget, RecorderWidget
 from pov_recorder import Recorder
 
+
 class Driver(QtWidgets.QWidget):
     """main window class invisible window on the whole monitor
     class has to inherit from QWidget, to be able to work with signals"""
@@ -34,15 +35,13 @@ class Driver(QtWidgets.QWidget):
         self.name = os.path.basename(key).replace(".toml", "")
         self.params = value
 
-        self._setup_buttons_window()
-        self._setup_multprocessing_shared_memory()
-        self.setup_frames()
+        self._init_buttons_widget()
+        self._init_recorder_widget()
+        self._init_frames_widgets()
+        self._init_multiprocessing_shared_memory()
+        self._init_timers()
+        self._init_rec_mouse_keyboard()
 
-        self._setup_timers()
-        self.recorder = Recorder(self.params)
-        self.recorder.read_records_json()
-        self.mymouse = MouseManager(self.params["remap_mouse"].copy())
-        self.my_keyboard = KeyboardManager(self.params["remap_keyboard"].copy())
         self.hwndMain = win32gui.FindWindow(None, self.params["paths"]["target_app_name"])  # set foreground window check
 
         # DRIVER VARIABLES
@@ -57,8 +56,8 @@ class Driver(QtWidgets.QWidget):
         self.healing_hooked = False
         self.reload_counter = 0
 
-    # _______________________________________ INIT SETUP _______________________________________
-    def _setup_buttons_window(self):
+    # _______________________________________ INIT  _______________________________________
+    def _init_buttons_widget(self):
         """setup buttons frame connect signal and show"""
         self.buttons_window = ButtonsWidget(self.params)
         self.buttons_window.connect_buttons(self.on_button_window_button_clicked)
@@ -71,8 +70,11 @@ class Driver(QtWidgets.QWidget):
 
         self.buttons_window.show()
 
+    def _init_recorder_widget(self):
+        self.recorder_widget = RecorderWidget(self.params)
+        self.recorder_widget.lineEdit_save.returnPressed.connect(self.on_recorder_widget_line_edit_save_enter_pressed)
 
-    def setup_frames(self):
+    def _init_frames_widgets(self):
         """setup various frames on screen"""
         self.frame_scan_area = FrameWidget(self.params["frame_scan"], self.params["frame_scan"], outer_frame=True)
         if self.buttons_window.checkBox_scan_area.isChecked():
@@ -85,7 +87,7 @@ class Driver(QtWidgets.QWidget):
         if self.buttons_window.checkBox_health_value.isChecked():
             self.frame_health_value.show()
 
-    def _setup_multprocessing_shared_memory(self):
+    def _init_multiprocessing_shared_memory(self):
         """setup_multprocessing_shared_memory"""
         w, h = self.params["frame_scan"]["geometry"][2:]
         self.mp_capture = mp.Array(c.c_ubyte, h * w * 4)
@@ -96,7 +98,7 @@ class Driver(QtWidgets.QWidget):
         self.states[0] = 1
         self.p.start()
 
-    def _setup_timers(self):
+    def _init_timers(self):
         """setup_timers"""
         self.timer_10_msec = qtc.QTimer()
         self.timer_10_msec.timeout.connect(self.on_10_ms_timer)
@@ -106,6 +108,17 @@ class Driver(QtWidgets.QWidget):
         self.timer_1000_msec.timeout.connect(self.on_1000_ms_timer)
         self.timer_1000_msec.start(1000)
         self.timers = [self.timer_10_msec, self.timer_1000_msec]
+
+    def _init_rec_mouse_keyboard(self):
+        """_init_rec_mouse_keyboard"""
+        # recorder
+        self.recorder = Recorder(self.params)
+        self.recorder.set_recording_end_callback(self.recorder_widget.show)
+        self.recorder.read_records_json()
+        # mouse
+        self.mymouse = MouseManager(self.params["remap_mouse"].copy())
+        # keyboard
+        self.my_keyboard = KeyboardManager(self.params["remap_keyboard"].copy())
 
     # _______________________________________ CALLBACKS _______________________________________
     def on_1000_ms_timer(self):
@@ -117,10 +130,10 @@ class Driver(QtWidgets.QWidget):
         self.healing_timeout += 10
         self.heal_on_condition()
 
-
-    def on_recorder_line_edit_save_enter_pressed(self):
+    def on_recorder_widget_line_edit_save_enter_pressed(self):
+        """on_recorder_widget_line_edit_save_enter_pressed -> save recording"""
         text = self.recorder_widget.lineEdit_save.text()
-        print(text)
+        self.recorder.save(f"{text}.json")
         self.recorder_widget.hide()
 
     def on_button_window_button_clicked(self):
@@ -145,8 +158,6 @@ class Driver(QtWidgets.QWidget):
             self.my_keyboard.unhook_all()
             self.mymouse.unhook_all()
             self.recorder.record()
-
-
 
         elif string == "X":
             self.buttons_window.close()

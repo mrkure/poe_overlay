@@ -1,14 +1,18 @@
-import mouse
-import keyboard
-import threading
+"""recorder module"""
+
+import os
 import time
 import json
-from pov_widgets import RecorderWidget
-import os
+import threading
 from pathlib import Path
+
+import mouse
+import keyboard
 
 
 class Recorder:
+    """recorder class"""
+
     def __init__(self, params):
         self.jsons = {}
         self.workers = {}
@@ -17,18 +21,15 @@ class Recorder:
         self.recording = False
         self._start_time = None
         self._mouse_hook = None
-        self.setup_recorder_widget()
         self.hooked = False
+        self.recording_end_callback = None
 
-    def set_callback(self, func):
-        self.callback = func
-
-    def setup_recorder_widget(self):
-        self.recorder_widget = RecorderWidget(self.params)
-        self.recorder_widget.lineEdit_save.returnPressed.connect(self.on_recorder_line_edit_save_enter_pressed)
+    def set_recording_end_callback(self, func):
+        """set_recording_end_callback"""
+        self.recording_end_callback = func
 
     def _now(self):
-        return time.time() - self._start_time
+        return time.time() - self._start_time  # type: ignore
 
     def _record_mouse(self):
         def handler(event):
@@ -65,12 +66,6 @@ class Recorder:
 
         self._mouse_hook = mouse.hook(handler)
 
-    def on_recorder_line_edit_save_enter_pressed(self):
-        self.recorder_widget.hide()
-        text = self.recorder_widget.lineEdit_save.text()
-        self.save(f"{text}.json")
-        self.callback()
-
     def _record_keyboard(self):
         while self.recording:
             event = keyboard.read_event()
@@ -82,6 +77,7 @@ class Recorder:
         print("\n[Stopped recording]")
 
     def record(self):
+        """record"""
         self.recording = True
         self._start_time = time.time()
         self.events = []
@@ -99,19 +95,18 @@ class Recorder:
         stop_thread.join()  # Wait for ESC
 
         mouse.unhook(self._mouse_hook)  # Clean up mouse hook
-        self.recorder_widget.show()
-        self.recorder_widget.lineEdit_save.setFocus()
+        if self.recording_end_callback:
+            self.recording_end_callback()
 
     def save(self, filename):
-        with open(filename, "w") as f:
+        """save record"""
+        with open(filename, "w", encoding="utf-8") as f:
             json.dump(self.events, f, indent=2)
         print(f"[Saved {len(self.events)} events to {filename}]")
 
-    def on_saved(self, func):
-        func()
-
     def load(self, filename):
-        with open(filename, "r") as f:
+        """load all records"""
+        with open(filename, "r", encoding="utf-8") as f:
             self.events = json.load(f)
         print(f"[Loaded {len(self.events)} events from {filename}]")
 
@@ -123,6 +118,7 @@ class Recorder:
                 self.jsons[os.path.basename(file).replace(".json", "")] = json.load(f)
 
     def hook_all(self):
+        """hook_all"""
         if not self.hooked:
             for key, value in self.jsons.items():
                 worker = {"hotkey": key.split("-")[1], "name": key.split("-")[2], "events": value}
@@ -142,6 +138,7 @@ class Recorder:
             self.hooked = False
 
     def replay(self, worker):
+        """replay record"""
         print(f"\nReplaying {worker['name']} {len(worker['events'])} events...")
         self.events.sort(key=lambda e: e["time"])
         start_replay = time.time()
