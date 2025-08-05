@@ -132,7 +132,7 @@ class Recorder:
         """unhook all workers"""
         if self.hooked:
             for worker in self.workers.values():
-                print(f"{'removing record':<20}  {worker['hotkey']:<15}: {worker['function'].__name__}")
+                print(f"{'removing record':<20}  {worker['hotkey']:<15}: {worker['name']}")
                 keyboard.remove_hotkey(worker["id"])
                 worker["running"] = False
             self.hooked = False
