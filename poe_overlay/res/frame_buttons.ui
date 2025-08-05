@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>481</width>
+    <width>646</width>
     <height>29</height>
    </rect>
   </property>
@@ -90,6 +90,9 @@
      <property name="text">
       <string>S</string>
      </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
@@ -97,15 +100,38 @@
      <property name="text">
       <string>H</string>
      </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
     <widget class="QCheckBox" name="checkBox_health_value">
      <property name="text">
-      <string>V</string>
+      <string>Hv</string>
      </property>
      <property name="checked">
-      <bool>false</bool>
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBox_mana_bar">
+     <property name="text">
+      <string>M</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBox_mana_value">
+     <property name="text">
+      <string>Mv</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

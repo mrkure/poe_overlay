@@ -1,11 +1,19 @@
 active = false
+namexxx = "bama"
 
 [autoheal]
+active = false
+low_lim = 13
+high_lim = 60
+timeout = 1000
+keys = [ [ 1, 2, 3,], [ 4, 5,],]
+
+[automana]
 active = true
 low_lim = 13
 high_lim = 60
 timeout = 1000
-keys = [ 1, 2, 3,]
+keys = [ [ 6, 7, 8,], [ 9,],]
 
 [paths]
 target_app_name = "Path of Exile"
@@ -22,10 +30,18 @@ button_inactive = "background-color: rgb(100, 100, 100)"
 
 [frame_health_bar]
 geometry = [ 105, 910, 15, 180,]
-css = "QLabel {background-color: transparent;border: 2px solid red;color: white;font-size: 14px;}"
+css = "QLabel {background-color: transparent;border: 1px solid red;color: white;font-size: 14px;}"
 
 [frame_health_value]
 geometry = [ 240, 910, 70, 70,]
+css = "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"
+
+[frame_mana_bar]
+geometry = [ 1600, 910, 15, 180,]
+css = "QLabel {background-color: transparent;border: 1px solid blue;color: white;font-size: 14px;}"
+
+[frame_mana_value]
+geometry = [ 1500, 910, 70, 70,]
 css = "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"
 
 [frame_scan]

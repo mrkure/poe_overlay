@@ -11,7 +11,9 @@ import keyboard  # type: ignore
 import numpy as np  # type: ignore
 
 from PyQt5 import QtCore as qtc  # type: ignore
-from PyQt5 import QtWidgets  # type: ignore
+from PyQt5 import QtWidgets # type: ignore
+from PyQt5.QtWidgets import QWidget, QSystemTrayIcon, QAction, QMenu, QApplication
+
 
 import pov_bg_process as bgp
 from pov_mouse import MouseManager
@@ -34,6 +36,7 @@ class Driver(QtWidgets.QWidget):
                 break
         self.name = os.path.basename(key).replace(".toml", "")
         self.params = value
+        self.params["namexxx"] = self.name 
 
         self._init_buttons_widget()
         self._init_recorder_widget()
@@ -45,16 +48,14 @@ class Driver(QtWidgets.QWidget):
         self.hwndMain = win32gui.FindWindow(None, self.params["paths"]["target_app_name"])  # set foreground window check
 
         # DRIVER VARIABLES
-        self.health_time_last = 0
-        self.flask_pointer = 2
-        self.a = True
-        self.healing_timeout = 0
-        self.increment = 0
-        self.stopwatch_running = False
+
+        self.autoheal_timeout = 0
+        self.autoheal_pointer = 0
+        self.automana_timeout = 0
+        self.automana_pointer = 0
+
         self.game_active = False
         self.game_active_last = False
-        self.healing_hooked = False
-        self.reload_counter = 0
 
     # _______________________________________ INIT  _______________________________________
     def _init_buttons_widget(self):
@@ -72,7 +73,7 @@ class Driver(QtWidgets.QWidget):
 
     def _init_recorder_widget(self):
         self.recorder_widget = RecorderWidget(self.params)
-        self.recorder_widget.lineEdit_save.returnPressed.connect(self.on_recorder_widget_line_edit_save_enter_pressed)
+        # self.recorder_widget.lineEdit_save.returnPressed.connect(self.on_recorder_widget_line_edit_save_enter_pressed)
 
     def _init_frames_widgets(self):
         """setup various frames on screen"""
@@ -83,9 +84,15 @@ class Driver(QtWidgets.QWidget):
         if self.buttons_window.checkBox_health_bar.isChecked():
             self.frame_health_bar.show()
         self.frame_health_value = FrameWidget(self.params["frame_scan"], self.params["frame_health_value"], outer_frame=False)
-        self.frame_health_value.label.setText("X")
         if self.buttons_window.checkBox_health_value.isChecked():
             self.frame_health_value.show()
+
+        self.frame_mana_bar = FrameWidget(self.params["frame_scan"], self.params["frame_mana_bar"], outer_frame=False)
+        if self.buttons_window.checkBox_mana_bar.isChecked():
+            self.frame_mana_bar.show()
+        self.frame_mana_value = FrameWidget(self.params["frame_scan"], self.params["frame_mana_value"], outer_frame=False)
+        if self.buttons_window.checkBox_mana_value.isChecked():
+            self.frame_mana_value.show()
 
     def _init_multiprocessing_shared_memory(self):
         """setup_multprocessing_shared_memory"""
@@ -94,7 +101,7 @@ class Driver(QtWidgets.QWidget):
         self.capture = np.frombuffer(self.mp_capture.get_obj(), dtype=np.uint8).reshape((h, w, 4))  # type: ignore
         self.mp_states = mp.Array(c.c_uint, 10)
         self.states = np.frombuffer(self.mp_states.get_obj(), dtype=np.uint)  # type: ignore
-        self.p = Process(target=bgp.capture_screen, args=(self.mp_capture, self.mp_states, self.params["frame_scan"]["geometry"], self.params["frame_health_bar"]["geometry"]), daemon=True)
+        self.p = Process(target=bgp.capture_screen, args=(self.mp_capture, self.mp_states, self.params), daemon=True)
         self.states[0] = 1
         self.p.start()
 
@@ -127,14 +134,8 @@ class Driver(QtWidgets.QWidget):
 
     def on_10_ms_timer(self):
         """on_10_ms_timer"""
-        self.healing_timeout += 10
         self.heal_on_condition()
-
-    def on_recorder_widget_line_edit_save_enter_pressed(self):
-        """on_recorder_widget_line_edit_save_enter_pressed -> save recording"""
-        text = self.recorder_widget.lineEdit_save.text()
-        self.recorder.save(f"{text}.json")
-        self.recorder_widget.hide()
+        self.mana_on_condition()
 
     def on_button_window_button_clicked(self):
         """callback method, react to buttons press on buttons frame"""
@@ -155,8 +156,11 @@ class Driver(QtWidgets.QWidget):
             self.recorder.unhook_all()
 
         elif string == "rec":
+            self.buttons_window.set_visual_style_unhooked() 
+            QApplication.processEvents()
             self.my_keyboard.unhook_all()
             self.mymouse.unhook_all()
+            self.recorder.unhook_all()
             self.recorder.record()
 
         elif string == "X":
@@ -185,11 +189,21 @@ class Driver(QtWidgets.QWidget):
                 self.frame_health_bar.show()
             else:
                 self.frame_health_bar.hide()
-        if name == "V":
+        if name == "Hv":
             if self.sender().isChecked():
                 self.frame_health_value.show()
             else:
                 self.frame_health_value.hide()
+        if name == "M":
+            if self.sender().isChecked():
+                self.frame_mana_bar.show()
+            else:
+                self.frame_mana_bar.hide()
+        if name == "Mv":
+            if self.sender().isChecked():
+                self.frame_mana_value.show()
+            else:
+                self.frame_mana_value.hide()
 
     # _______________________________________ METHODS _______________________________________
 
@@ -223,15 +237,33 @@ class Driver(QtWidgets.QWidget):
 
     def heal_on_condition(self):
         """heal logic"""
+        self.autoheal_timeout += 10
         health_value = self.states[5]
         self.frame_health_value.label.setText(str(health_value))
-        if (self.params["autoheal"]["low_lim"] < health_value < self.params["autoheal"]["high_lim"]) and self.game_active:
-            if self.healing_timeout >= self.params["autoheal"]["timeout"]:  # ms
-                for key in self.params["autoheal"]["keys"]:
-                    keyboard.press(str(key))
+        if (self.params["autoheal"]["low_lim"] < health_value < self.params["autoheal"]["high_lim"]) and True and self.params["autoheal"]["active"]:
+            if self.autoheal_timeout >= self.params["autoheal"]["timeout"]:  # ms
+                for key_to_send in self.params["autoheal"]["keys"][self.autoheal_pointer]:
+                    keyboard.send(str(key_to_send))
                     time.sleep(0.05)
-                    keyboard.release(str(key))
-                self.healing_timeout = 0
+                self.autoheal_pointer += 1
+                if self.autoheal_pointer == len(self.params["autoheal"]["keys"]):
+                    self.autoheal_pointer = 0
+                self.autoheal_timeout = 0
+
+    def mana_on_condition(self):
+        """heal logic"""
+        self.automana_timeout += 10
+        mana_value = self.states[6]
+        self.frame_mana_value.label.setText(str(mana_value))
+        if (self.params["automana"]["low_lim"] < mana_value < self.params["automana"]["high_lim"]) and True and self.params["automana"]["active"]:
+            if self.automana_timeout >= self.params["automana"]["timeout"]:  # ms
+                for key_to_send in self.params["automana"]["keys"][self.automana_pointer]:
+                    keyboard.send(str(key_to_send))
+                    time.sleep(0.05)
+                self.automana_pointer += 1
+                if self.automana_pointer == len(self.params["automana"]["keys"]):
+                    self.automana_pointer = 0
+                self.automana_timeout = 0
 
     def close_windows(self):
         """close windows"""

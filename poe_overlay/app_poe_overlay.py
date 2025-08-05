@@ -43,7 +43,17 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
         self.write_configs_toml()
         self.setup_windows()
 
-    def on_buttons_window_reload_button_clicked(self):
+    def on_recorder_widget_line_edit_save_enter_pressed(self):
+        """on_recorder_widget_line_edit_save_enter_pressed -> save recording"""
+        text = self.main.recorder_widget.lineEdit_save.text()
+        if len(text.split("-")) == 3:
+            self.main.recorder.save(f"{text}.json")
+            self.main.recorder_widget.hide()
+            self.setup_windows()
+        else :
+            print("Cannot save, wrong name format")
+            self.main.recorder_widget.hide()
+    def on_buttons_window_edit_button_clicked(self):
         """reload window"""
         key = None
         for key, value in self.configs.items():
@@ -83,12 +93,11 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
             pass
         self.read_configs_toml()
         self.main = Driver(self.configs)
-        self.main.buttons_window.pushButton_edit.clicked.connect(self.on_buttons_window_reload_button_clicked)
+        self.main.buttons_window.pushButton_edit.clicked.connect(self.on_buttons_window_edit_button_clicked)
         self.main.buttons_window.comboBox_profile.currentIndexChanged.connect(self.on_combobox_profile_index_change)
+        self.main.recorder_widget.lineEdit_save.returnPressed.connect(self.on_recorder_widget_line_edit_save_enter_pressed)
         # self.main.recorder.on_saved(self.pprint)
 
-    def pprint(self):
-        print("saved")
     def read_configs_toml(self):
         """load config"""
         toml_files = [str(f) for f in Path(self.CONFIG_PATH).glob("*.toml")]
@@ -96,26 +105,21 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
             with open(file, "r", encoding="utf-8") as f:
                 self.configs[file] = toml.load(f)
 
-
     def write_configs_toml(self):
         """writes path to currently active toml config"""
+
         def remove_keys_recursive(obj, keys_to_remove):
             if isinstance(obj, dict):
-                return {
-                    k: remove_keys_recursive(v, keys_to_remove)
-                    for k, v in obj.items()
-                    if k not in keys_to_remove
-                }
+                return {k: remove_keys_recursive(v, keys_to_remove) for k, v in obj.items() if k not in keys_to_remove}
             elif isinstance(obj, list):
                 return [remove_keys_recursive(item, keys_to_remove) for item in obj]
             else:
                 return obj
-        
+
         for key, value in self.configs.items():
             config = remove_keys_recursive(value, ["function", "id", "flasks_pointer", "running"])
             with open(key, "w", encoding="utf-8") as f:
                 toml.dump(config, f)
-
 
 
 if __name__ == "__main__":

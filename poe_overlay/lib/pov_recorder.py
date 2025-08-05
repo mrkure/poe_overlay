@@ -112,10 +112,13 @@ class Recorder:
 
     def read_records_json(self):
         """load config"""
+        name = self.params["namexxx"].split("-")[0]
+        print(name)
         json_files = [str(f) for f in Path(r"c:\_software\poe_overlay\poe_overlay").glob("*.json")]
         for file in json_files:
-            with open(file, "r", encoding="utf-8") as f:
-                self.jsons[os.path.basename(file).replace(".json", "")] = json.load(f)
+            if os.path.basename(file).replace(".toml", "").split("-")[0] == name or os.path.basename(file).replace(".toml", "").split("-")[0] == "all":
+                with open(file, "r", encoding="utf-8") as f:
+                    self.jsons[os.path.basename(file).replace(".json", "")] = json.load(f)
 
     def hook_all(self):
         """hook_all"""
