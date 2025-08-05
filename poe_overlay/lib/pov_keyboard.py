@@ -77,7 +77,7 @@ class KeyboardManager:
                 print(f"{'removing keyboard':<20}  {worker['hotkey']:<15}: {worker['function'].__name__}")
                 keyboard.remove_hotkey(worker["id"])
                 worker["running"] = False
-        self.hooked = False
+            self.hooked = False
 
     def complete_workers_data(self):
         """map functions to worker dictionaries"""

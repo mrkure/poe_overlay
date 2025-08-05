@@ -1,4 +1,4 @@
-active = true
+active = false
 
 [autoheal]
 active = true
@@ -10,6 +10,7 @@ keys = [ 1, 2, 3,]
 [paths]
 target_app_name = "Path of Exile"
 path_frame_buttons_ui = "c:\\_software\\poe_overlay\\poe_overlay\\res\\frame_buttons.ui"
+path_frame_recorder_ui = "c:\\_software\\poe_overlay\\poe_overlay\\res\\frame_recorder.ui"
 path_icon_running = "c:\\_software\\poe_overlay\\poe_overlay\\res\\running.png"
 path_icon_stopped = "c:\\_software\\poe_overlay\\poe_overlay\\res\\stopped.png"
 
@@ -29,6 +30,9 @@ css = "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 2
 
 [frame_scan]
 geometry = [ 5, 29, 1910, 1120,]
+css = "QLabel {background-color: transparent;border: 2px solid red;color: white;font-size: 14px;}"
+
+[frame_recorder]
 css = "QLabel {background-color: transparent;border: 2px solid red;color: white;font-size: 14px;}"
 
 [frame_stop_watch]
