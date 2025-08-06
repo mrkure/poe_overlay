@@ -1,5 +1,5 @@
 active = false
-namexxx = "bama"
+active_profile_name = "bama"
 
 [autoheal]
 active = false

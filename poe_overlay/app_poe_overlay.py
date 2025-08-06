@@ -43,16 +43,26 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
         self.write_configs_toml()
         self.setup_windows()
 
+    def on_buttons_window_reload_button_clicked(self):
+        """on_buttons_window_reload_button_clicked"""
+        self.setup_windows()
+
     def on_recorder_widget_line_edit_save_enter_pressed(self):
         """on_recorder_widget_line_edit_save_enter_pressed -> save recording"""
-        text = self.main.recorder_widget.lineEdit_save.text()
-        if len(text.split("-")) == 3:
-            self.main.recorder.save(f"{text}.json")
+        filename = f"{self.main.recorder_widget.lineEdit_save.text()}.json"
+        mouse_move_delay = float(self.main.recorder_widget.lineEdit_mouse_move_delay.text())
+        other_keys_delay = float(self.main.recorder_widget.lineEdit_other_keys_delay.text())
+        repeat = int(self.main.recorder_widget.lineEdit_repeat.text())
+        dic = {"filename": filename, "mouse_move_delay": mouse_move_delay, "other_keys_delay": other_keys_delay, "repeat": repeat}
+
+        if len(filename.split("-")) == 3:
+            self.main.recorder.save(dic)
             self.main.recorder_widget.hide()
             self.setup_windows()
-        else :
+        else:
             print("Cannot save, wrong name format")
             self.main.recorder_widget.hide()
+
     def on_buttons_window_edit_button_clicked(self):
         """reload window"""
         key = None
@@ -94,6 +104,7 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
         self.read_configs_toml()
         self.main = Driver(self.configs)
         self.main.buttons_window.pushButton_edit.clicked.connect(self.on_buttons_window_edit_button_clicked)
+        self.main.buttons_window.pushButton_reload.clicked.connect(self.on_buttons_window_reload_button_clicked)
         self.main.buttons_window.comboBox_profile.currentIndexChanged.connect(self.on_combobox_profile_index_change)
         self.main.recorder_widget.lineEdit_save.returnPressed.connect(self.on_recorder_widget_line_edit_save_enter_pressed)
         # self.main.recorder.on_saved(self.pprint)

@@ -11,8 +11,8 @@ import keyboard  # type: ignore
 import numpy as np  # type: ignore
 
 from PyQt5 import QtCore as qtc  # type: ignore
-from PyQt5 import QtWidgets # type: ignore
-from PyQt5.QtWidgets import QWidget, QSystemTrayIcon, QAction, QMenu, QApplication
+from PyQt5 import QtWidgets  # type: ignore
+from PyQt5.QtWidgets import QApplication
 
 
 import pov_bg_process as bgp
@@ -31,12 +31,13 @@ class Driver(QtWidgets.QWidget):
         super().__init__()
 
         self.configs = configs
+
         for key, value in self.configs.items():
             if value["active"]:
                 break
         self.name = os.path.basename(key).replace(".toml", "")
         self.params = value
-        self.params["namexxx"] = self.name 
+        self.params["active_profile_name"] = self.name
 
         self._init_buttons_widget()
         self._init_recorder_widget()
@@ -53,7 +54,8 @@ class Driver(QtWidgets.QWidget):
         self.autoheal_pointer = 0
         self.automana_timeout = 0
         self.automana_pointer = 0
-
+        self.autoheal_active = 0
+        self.automana_active = 0
         self.game_active = False
         self.game_active_last = False
 
@@ -65,7 +67,7 @@ class Driver(QtWidgets.QWidget):
         self.buttons_window.connect_checkboxes(self.on_button_window_checkbox_state_changed)
         self.buttons_window.move(*self.params["frame_buttons"]["geometry"][0:2])
 
-        for key, value in self.configs.items():
+        for key, _ in self.configs.items():
             self.buttons_window.comboBox_profile.addItem(os.path.basename(key).replace(".toml", ""), userData=key)
             self.buttons_window.comboBox_profile.setCurrentIndex(self.buttons_window.comboBox_profile.findText(self.name))
 
@@ -73,7 +75,6 @@ class Driver(QtWidgets.QWidget):
 
     def _init_recorder_widget(self):
         self.recorder_widget = RecorderWidget(self.params)
-        # self.recorder_widget.lineEdit_save.returnPressed.connect(self.on_recorder_widget_line_edit_save_enter_pressed)
 
     def _init_frames_widgets(self):
         """setup various frames on screen"""
@@ -144,30 +145,18 @@ class Driver(QtWidgets.QWidget):
         self.bring_target_window_on_top()
 
         if string == "Hooked":
-            self.buttons_window.set_visual_style_hooked()
-            self.mymouse.hook_all()
-            self.my_keyboard.hook_all()
-            self.recorder.hook_all()
+            self.hook_all()
 
         elif string == "Unhooked":
-            self.buttons_window.set_visual_style_unhooked()
-            self.mymouse.unhook_all()
-            self.my_keyboard.unhook_all()
-            self.recorder.unhook_all()
+            self.unhook_all()
 
-        elif string == "rec":
-            self.buttons_window.set_visual_style_unhooked() 
-            QApplication.processEvents()
-            self.my_keyboard.unhook_all()
-            self.mymouse.unhook_all()
-            self.recorder.unhook_all()
-            self.recorder.record()
+        elif string == "Record":
+
+            self.unhook_all()
 
         elif string == "X":
             self.buttons_window.close()
-            self.mymouse.unhook_all()
-            self.my_keyboard.unhook_all()
-            self.recorder.unhook_all()
+            self.unhook_all()
             for timer in self.timers:
                 timer.stop()
             self.close()
@@ -226,22 +215,19 @@ class Driver(QtWidgets.QWidget):
         else:
             self.game_active = False
         if not self.game_active and self.game_active_last:
-            self.buttons_window.set_visual_style_unhooked()
-            self.mymouse.unhook_all()
-            self.my_keyboard.unhook_all()
+            self.unhook_all()
 
         if self.game_active and not self.game_active_last:
-            self.buttons_window.set_visual_style_hooked()
-            self.mymouse.hook_all()
-            self.my_keyboard.hook_all()
+            self.hook_all()
 
     def heal_on_condition(self):
         """heal logic"""
         self.autoheal_timeout += 10
         health_value = self.states[5]
         self.frame_health_value.label.setText(str(health_value))
-        if (self.params["autoheal"]["low_lim"] < health_value < self.params["autoheal"]["high_lim"]) and True and self.params["autoheal"]["active"]:
+        if (self.params["autoheal"]["low_lim"] < health_value < self.params["autoheal"]["high_lim"]) and self.autoheal_active and self.params["autoheal"]["active"]:
             if self.autoheal_timeout >= self.params["autoheal"]["timeout"]:  # ms
+                print("Autoheal activated")
                 for key_to_send in self.params["autoheal"]["keys"][self.autoheal_pointer]:
                     keyboard.send(str(key_to_send))
                     time.sleep(0.05)
@@ -255,8 +241,9 @@ class Driver(QtWidgets.QWidget):
         self.automana_timeout += 10
         mana_value = self.states[6]
         self.frame_mana_value.label.setText(str(mana_value))
-        if (self.params["automana"]["low_lim"] < mana_value < self.params["automana"]["high_lim"]) and True and self.params["automana"]["active"]:
+        if (self.params["automana"]["low_lim"] < mana_value < self.params["automana"]["high_lim"]) and self.automana_active and self.params["automana"]["active"]:
             if self.automana_timeout >= self.params["automana"]["timeout"]:  # ms
+                print("Automana activated")
                 for key_to_send in self.params["automana"]["keys"][self.automana_pointer]:
                     keyboard.send(str(key_to_send))
                     time.sleep(0.05)
@@ -265,13 +252,35 @@ class Driver(QtWidgets.QWidget):
                     self.automana_pointer = 0
                 self.automana_timeout = 0
 
+    def hook_all(self):
+        """hook_all"""
+        self.autoheal_active = 1
+        self.automana_active = 1
+        print("autoheal:", self.params["autoheal"])
+        print("automana:", self.params["automana"])
+        self.buttons_window.set_visual_style_hooked()
+        QApplication.processEvents()
+        self.mymouse.hook_all()
+        self.my_keyboard.hook_all()
+        self.recorder.hook_all()
+
+    def unhook_all(self):
+        """unhook_all"""
+        print("unhooking autoheal")
+        print("unhooking automana")
+        self.autoheal_active = 0
+        self.automana_active = 0
+        self.buttons_window.set_visual_style_unhooked()
+        QApplication.processEvents()
+        self.mymouse.unhook_all()
+        self.my_keyboard.unhook_all()
+        self.recorder.unhook_all()
+
     def close_windows(self):
         """close windows"""
         self.buttons_window.close()
         for timer in self.timers:
             timer.stop()
-        self.mymouse.unhook_all()
-        self.my_keyboard.unhook_all()
-        self.recorder.unhook_all()
+        self.unhook_all()
         self.p.kill()
         self.close()

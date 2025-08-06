@@ -2,7 +2,7 @@
 
 import os
 from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtWidgets import QCheckBox, QPushButton
+from PyQt5.QtWidgets import QCheckBox, QPushButton, QDesktopWidget
 from PyQt5 import QtCore as qtc  # type: ignore
 from PyQt5 import (
     QtWidgets,  # type: ignore
@@ -105,7 +105,13 @@ class RecorderWidget(QtWidgets.QFrame):
         uic.loadUi(os.path.join(os.path.dirname(os.path.dirname(__file__)), params["paths"]["path_frame_recorder_ui"]), self)
         self.setWindowFlags(qtc.Qt.WindowStaysOnTopHint)
         self.setWindowFlags(qtc.Qt.FramelessWindowHint | qtc.Qt.WindowStaysOnTopHint | qtc.Qt.Tool)
-        self.move(400,400)
+        self.center()
         # self.line_edit_save.returnPressed.connect(self.on_enter_pressed)
         # self.show()
 
+    def center(self):
+        """center widget"""
+        frame_geometry = self.frameGeometry()
+        screen_center = QDesktopWidget().availableGeometry().center()
+        frame_geometry.moveCenter(screen_center)
+        self.move(frame_geometry.topLeft())

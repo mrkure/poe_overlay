@@ -17,7 +17,7 @@ class Recorder:
         self.jsons = {}
         self.workers = {}
         self.params = params
-        self.events = []
+        self.current_recording = []
         self.recording = False
         self._start_time = None
         self._mouse_hook = None
@@ -48,8 +48,6 @@ class Recorder:
                     {
                         "event_type": event.event_type,  # 'down' or 'up'
                         "button": event.button,
-                        # 'x': event.x,
-                        # 'y': event.y
                     }
                 )
             elif isinstance(event, mouse.WheelEvent):
@@ -57,19 +55,17 @@ class Recorder:
                     {
                         "event_type": "wheel",
                         "delta": event.delta,
-                        # 'x': event.x,
-                        # 'y': event.y
                     }
                 )
 
-            self.events.append(event_data)
+            self.current_recording.append(event_data)
 
         self._mouse_hook = mouse.hook(handler)
 
     def _record_keyboard(self):
         while self.recording:
             event = keyboard.read_event()
-            self.events.append({"type": "keyboard", "time": self._now(), "event_type": event.event_type, "name": event.name})
+            self.current_recording.append({"type": "keyboard", "time": self._now(), "event_type": event.event_type, "name": event.name})
 
     def _stop_on_esc(self):
         keyboard.wait("esc")
@@ -80,7 +76,7 @@ class Recorder:
         """record"""
         self.recording = True
         self._start_time = time.time()
-        self.events = []
+        self.current_recording = []
 
         print("Recording... Press ESC to stop.")
 
@@ -98,22 +94,35 @@ class Recorder:
         if self.recording_end_callback:
             self.recording_end_callback()
 
-    def save(self, filename):
+    def save(self, data):
         """save record"""
+        filename = data["filename"]
+
+        self.current_recording.sort(key=lambda e: e["time"])
+        for num, e in enumerate(self.current_recording):
+            e["time_diff"] = 0
+            if num > 0:
+                e["time_diff"] = e["time"] - self.current_recording[num - 1]["time"]
+            try:
+                e["next_event"] = self.current_recording[num + 1]["type"] + "_" + self.current_recording[num + 1]["event_type"]
+            except:
+                e["next_event"] = None
+
+        data["events"] = self.current_recording
         with open(filename, "w", encoding="utf-8") as f:
-            json.dump(self.events, f, indent=2)
-        print(f"[Saved {len(self.events)} events to {filename}]")
+            json.dump(data, f, indent=4)
+
+        print(f"[Saved {len(self.current_recording)} events to {filename}]")
 
     def load(self, filename):
         """load all records"""
         with open(filename, "r", encoding="utf-8") as f:
-            self.events = json.load(f)
-        print(f"[Loaded {len(self.events)} events from {filename}]")
+            self.current_recording = json.load(f)
+        print(f"[Loaded {len(self.current_recording)} events from {filename}]")
 
     def read_records_json(self):
         """load config"""
-        name = self.params["namexxx"].split("-")[0]
-        print(name)
+        name = self.params["active_profile_name"].split("-")[0]
         json_files = [str(f) for f in Path(r"c:\_software\poe_overlay\poe_overlay").glob("*.json")]
         for file in json_files:
             if os.path.basename(file).replace(".toml", "").split("-")[0] == name or os.path.basename(file).replace(".toml", "").split("-")[0] == "all":
@@ -124,8 +133,9 @@ class Recorder:
         """hook_all"""
         if not self.hooked:
             for key, value in self.jsons.items():
-                worker = {"hotkey": key.split("-")[1], "name": key.split("-")[2], "events": value}
-                print(f"{'adding record':<20}  {worker['hotkey']:<25}: {worker['name']}")
+                worker = {"hotkey": key.split("-")[1], "name": key.split("-")[2], "recording": value}
+                info = ", ".join(key + ": " + str(value) for key, value in worker['recording'].items() if key not in ("events", "filename"))                
+                print(f"{'adding record':<20}  {worker['hotkey']:<25}: {worker['name']}, {info}")
                 _id = keyboard.add_hotkey(worker["hotkey"], self.replay, args=(worker,))
                 worker["id"] = _id
                 self.workers[key] = worker
@@ -140,30 +150,46 @@ class Recorder:
                 worker["running"] = False
             self.hooked = False
 
+
     def replay(self, worker):
         """replay record"""
-        print(f"\nReplaying {worker['name']} {len(worker['events'])} events...")
-        self.events.sort(key=lambda e: e["time"])
-        start_replay = time.time()
+        print(f"\nReplaying {worker['name']} {len(worker['recording']['events'])} events...")
+        init_pos = mouse.get_position()
 
-        for e in worker["events"]:
-            wait_time = e["time"] - (time.time() - start_replay)
-            if wait_time > 0:
-                time.sleep(wait_time)
+        for _ in range(worker["recording"]["repeat"]):
+            for e in worker["recording"]["events"]:
+                if e["type"] == "mouse":
+                    if e["event_type"] == "move":
+                        mouse.move(e["x"], e["y"])
+                    elif e["event_type"] == "down":
+                        mouse.press(e["button"])
+                    elif e["event_type"] == "up":
+                        mouse.release(e["button"])
 
-            if e["type"] == "mouse":
-                # print("mouse")
-                if e["event_type"] == "move":
-                    mouse.move(e["x"], e["y"])
-                elif e["event_type"] == "down":
-                    mouse.press(e["button"])
-                elif e["event_type"] == "up":
-                    mouse.release(e["button"])
+                elif e["type"] == "keyboard":
+                    if e["event_type"] == "down":
+                        keyboard.press(e["name"])
+                    elif e["event_type"] == "up":
+                        keyboard.release(e["name"])
+                else:
+                    pass
 
-            elif e["type"] == "keyboard":
-                if e["event_type"] == "down":
-                    keyboard.press(e["name"])
-                elif e["event_type"] == "up":
-                    keyboard.release(e["name"])
-        mouse.move(850, 500)
+                x, y = mouse.get_position()
+                if e["next_event"] == "mouse_move":
+                    time.sleep(worker["recording"]["mouse_move_delay"])
+                else:
+                    time.sleep(worker["recording"]["other_keys_delay"])
+                xx, yy = mouse.get_position()
+
+                # interrupt on mouse move during replaying
+                if abs(x - xx) > 30 or abs(y - yy) > 30:
+                    print("Replay interrupted:", abs(x - xx), abs(y - yy))
+                    keyboard.release("ctrl")
+                    keyboard.release("shift")
+                    mouse.release("left")
+                    mouse.release("right")
+                    mouse.move(*init_pos)
+                    return
+
+        mouse.move(*init_pos)
         print("[Replay complete]")

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>395</width>
-    <height>68</height>
+    <width>157</width>
+    <height>198</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,10 +15,69 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>FileName</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLineEdit" name="lineEdit_save"/>
    </item>
    <item>
-    <widget class="QLineEdit" name="lineEdit_2"/>
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Mouse Move Delay</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="lineEdit_mouse_move_delay">
+     <property name="text">
+      <string>0.005</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Other Keys Delay</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="lineEdit_other_keys_delay">
+     <property name="text">
+      <string>0.1</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Repeat</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="lineEdit_repeat">
+     <property name="text">
+      <string>1</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>
