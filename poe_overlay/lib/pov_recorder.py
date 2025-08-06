@@ -123,7 +123,7 @@ class Recorder:
     def read_records_json(self):
         """load config"""
         name = self.params["active_profile_name"].split("-")[0]
-        json_files = [str(f) for f in Path(r"c:\_software\poe_overlay\poe_overlay").glob("*.json")]
+        json_files = [str(f) for f in Path(os.path.dirname(os.path.dirname(__file__))).glob("*.json")]
         for file in json_files:
             if os.path.basename(file).replace(".toml", "").split("-")[0] == name or os.path.basename(file).replace(".toml", "").split("-")[0] == "all":
                 with open(file, "r", encoding="utf-8") as f:
