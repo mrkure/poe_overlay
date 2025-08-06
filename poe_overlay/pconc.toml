@@ -1,5 +1,4 @@
-active = true
-active_profile_name = "pconc"
+active = false
 
 [autoheal]
 active = true

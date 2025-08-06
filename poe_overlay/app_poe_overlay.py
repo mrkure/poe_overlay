@@ -128,7 +128,7 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
                 return obj
 
         for key, value in self.configs.items():
-            config = remove_keys_recursive(value, ["function", "id", "flasks_pointer", "running"])
+            config = remove_keys_recursive(value, ["function", "id", "flasks_pointer", "running", "active_profile_name"])
             with open(key, "w", encoding="utf-8") as f:
                 toml.dump(config, f)
 
