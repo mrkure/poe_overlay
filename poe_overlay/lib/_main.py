@@ -151,8 +151,16 @@ class Driver(QtWidgets.QWidget):
             self.unhook_all()
 
         elif string == "Record":
-
-            self.unhook_all()
+            print("unhooking autoheal")
+            print("unhooking automana")
+            self.autoheal_active = 0
+            self.automana_active = 0
+            self.buttons_window.set_visual_style_unhooked() 
+            QApplication.processEvents()
+            self.my_keyboard.unhook_all()
+            self.mymouse.unhook_all()
+            self.recorder.unhook_all()
+            self.recorder.record()
 
         elif string == "X":
             self.buttons_window.close()
