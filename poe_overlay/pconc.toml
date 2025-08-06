@@ -1,4 +1,4 @@
-active = false
+active = true
 
 [autoheal]
 active = true
@@ -16,10 +16,10 @@ keys = [ [ 1, 2, 3,], [ 4, 5,],]
 
 [paths]
 target_app_name = "Path of Exile"
-path_frame_buttons_ui = "c:\\_software\\poe_overlay\\poe_overlay\\res\\frame_buttons.ui"
-path_frame_recorder_ui = "c:\\_software\\poe_overlay\\poe_overlay\\res\\frame_recorder.ui"
-path_icon_running = "c:\\_software\\poe_overlay\\poe_overlay\\res\\running.png"
-path_icon_stopped = "c:\\_software\\poe_overlay\\poe_overlay\\res\\stopped.png"
+path_frame_buttons_ui = "res\\frame_buttons.ui"
+path_frame_recorder_ui = "res\\frame_recorder.ui"
+path_icon_running = "res\\running.png"
+path_icon_stopped = "res\\stopped.png"
 
 [frame_buttons]
 geometry = [ 600, 1000, 0, 0,]
