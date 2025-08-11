@@ -39,6 +39,7 @@ disable = [
 #     # modules are not installed
     "E0611", # No name in module (import error)
     "E0401", # Unable to import module  
+    "W0102"
 ]
 [tool.pylint.main]
 ignore = ["scratch/*"]

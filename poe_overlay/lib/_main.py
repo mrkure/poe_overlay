@@ -5,6 +5,7 @@ import os
 import ctypes as c
 import multiprocessing as mp
 from multiprocessing import Process
+from pathlib import Path
 
 import win32gui  # type: ignore
 import keyboard  # type: ignore
@@ -14,30 +15,25 @@ from PyQt5 import QtCore as qtc  # type: ignore
 from PyQt5 import QtWidgets  # type: ignore
 from PyQt5.QtWidgets import QApplication
 
-
+import pov_tools as tools
 import pov_bg_process as bgp
 from pov_mouse import MouseManager
 from pov_keyboard import KeyboardManager
 from pov_widgets import ButtonsWidget, FrameWidget, RecorderWidget
 from pov_recorder import Recorder
-
+from pov_workers import MouseWorkers, KeyboardWorkers, AutomationWorkers
 
 class Driver(QtWidgets.QWidget):
     """main window class invisible window on the whole monitor
     class has to inherit from QWidget, to be able to work with signals"""
 
     # _______________________________________ INIT _______________________________________
-    def __init__(self, configs):
+    def __init__(self, settings):
         super().__init__()
-
-        self.configs = configs
-
-        for key, value in self.configs.items():
-            if value["active"]:
-                break
-        self.name = os.path.basename(key).replace(".toml", "")
-        self.params = value
-        self.params["active_profile_name"] = self.name
+        self.settings = settings
+        self.ImportedModule = tools.load_params_module(settings["active_profile_name"])
+        self.params = self.ImportedModule.params
+        self.params["active_profile_name"] = settings["active_profile_name"]
 
         self._init_buttons_widget()
         self._init_recorder_widget()
@@ -49,13 +45,6 @@ class Driver(QtWidgets.QWidget):
         self.hwndMain = win32gui.FindWindow(None, self.params["paths"]["target_app_name"])  # set foreground window check
 
         # DRIVER VARIABLES
-
-        self.autoheal_timeout = 0
-        self.autoheal_pointer = 0
-        self.automana_timeout = 0
-        self.automana_pointer = 0
-        self.autoheal_active = 0
-        self.automana_active = 0
         self.game_active = False
         self.game_active_last = False
 
@@ -67,9 +56,12 @@ class Driver(QtWidgets.QWidget):
         self.buttons_window.connect_checkboxes(self.on_button_window_checkbox_state_changed)
         self.buttons_window.move(*self.params["frame_buttons"]["geometry"][0:2])
 
-        for key, _ in self.configs.items():
-            self.buttons_window.comboBox_profile.addItem(os.path.basename(key).replace(".toml", ""), userData=key)
-            self.buttons_window.comboBox_profile.setCurrentIndex(self.buttons_window.comboBox_profile.findText(self.name))
+        base_dir = Path(f'{self.settings["base_dir"]}/{self.settings["paths"]["path_profiles"]}')
+        dirs = [d for d in base_dir.iterdir() if d.is_dir() and  d.name != "all"]
+
+        for item in dirs:
+            self.buttons_window.comboBox_profile.addItem(os.path.basename(item), userData=item)
+            self.buttons_window.comboBox_profile.setCurrentIndex(self.buttons_window.comboBox_profile.findText(self.settings["active_profile_name"]))
 
         self.buttons_window.show()
 
@@ -124,9 +116,9 @@ class Driver(QtWidgets.QWidget):
         self.recorder.set_recording_end_callback(self.recorder_widget.show)
         self.recorder.read_records_json()
         # mouse
-        self.mymouse = MouseManager(self.params["remap_mouse"].copy())
+        self.mymouse = MouseManager(self.ImportedModule.MouseWorkers)
         # keyboard
-        self.my_keyboard = KeyboardManager(self.params["remap_keyboard"].copy())
+        self.my_keyboard = KeyboardManager(self.ImportedModule.KeyboardWorkers)
 
     # _______________________________________ CALLBACKS _______________________________________
     def on_1000_ms_timer(self):
@@ -135,8 +127,8 @@ class Driver(QtWidgets.QWidget):
 
     def on_10_ms_timer(self):
         """on_10_ms_timer"""
-        self.heal_on_condition()
-        self.mana_on_condition()
+        AutomationWorkers.autoheal(self.frame_health_value, self.states[5], self.game_active)
+        AutomationWorkers.automana(self.frame_mana_value, self.states[6], self.game_active)
 
     def on_button_window_button_clicked(self):
         """callback method, react to buttons press on buttons frame"""
@@ -151,15 +143,12 @@ class Driver(QtWidgets.QWidget):
             self.unhook_all()
 
         elif string == "Record":
-            print("unhooking autoheal")
-            print("unhooking automana")
-            self.autoheal_active = 0
-            self.automana_active = 0
             self.buttons_window.set_visual_style_unhooked() 
             QApplication.processEvents()
             self.my_keyboard.unhook_all()
             self.mymouse.unhook_all()
             self.recorder.unhook_all()
+            AutomationWorkers.unhook_all()
             self.recorder.record()
 
         elif string == "X":
@@ -228,61 +217,55 @@ class Driver(QtWidgets.QWidget):
         if self.game_active and not self.game_active_last:
             self.hook_all()
 
-    def heal_on_condition(self):
-        """heal logic"""
-        self.autoheal_timeout += 10
-        health_value = self.states[5]
-        self.frame_health_value.label.setText(str(health_value))
-        if (self.params["autoheal"]["low_lim"] < health_value < self.params["autoheal"]["high_lim"]) and self.autoheal_active and self.params["autoheal"]["active"]:
-            if self.autoheal_timeout >= self.params["autoheal"]["timeout"]:  # ms
-                print("Autoheal activated")
-                for key_to_send in self.params["autoheal"]["keys"][self.autoheal_pointer]:
-                    keyboard.send(str(key_to_send))
-                    time.sleep(0.05)
-                self.autoheal_pointer += 1
-                if self.autoheal_pointer == len(self.params["autoheal"]["keys"]):
-                    self.autoheal_pointer = 0
-                self.autoheal_timeout = 0
+    # def heal_on_condition(self):
+    #     """heal logic"""
+    #     self.autoheal_timeout += 10
+    #     health_value = self.states[5]
+    #     self.frame_health_value.label.setText(str(health_value))
+    #     if (self.params["autoheal"]["low_lim"] < health_value < self.params["autoheal"]["high_lim"]) and self.autoheal_active and self.params["autoheal"]["active"]:
+    #         if self.autoheal_timeout >= self.params["autoheal"]["timeout"]:  # ms
+    #             print("Autoheal activated")
+    #             for key_to_send in self.params["autoheal"]["keys"][self.autoheal_pointer]:
+    #                 keyboard.send(str(key_to_send))
+    #                 time.sleep(0.05)
+    #             self.autoheal_pointer += 1
+    #             if self.autoheal_pointer == len(self.params["autoheal"]["keys"]):
+    #                 self.autoheal_pointer = 0
+    #             self.autoheal_timeout = 0
 
-    def mana_on_condition(self):
-        """heal logic"""
-        self.automana_timeout += 10
-        mana_value = self.states[6]
-        self.frame_mana_value.label.setText(str(mana_value))
-        if (self.params["automana"]["low_lim"] < mana_value < self.params["automana"]["high_lim"]) and self.automana_active and self.params["automana"]["active"]:
-            if self.automana_timeout >= self.params["automana"]["timeout"]:  # ms
-                print("Automana activated")
-                for key_to_send in self.params["automana"]["keys"][self.automana_pointer]:
-                    keyboard.send(str(key_to_send))
-                    time.sleep(0.05)
-                self.automana_pointer += 1
-                if self.automana_pointer == len(self.params["automana"]["keys"]):
-                    self.automana_pointer = 0
-                self.automana_timeout = 0
+    # def mana_on_condition(self):
+    #     """heal logic"""
+    #     self.automana_timeout += 10
+    #     mana_value = self.states[6]
+    #     self.frame_mana_value.label.setText(str(mana_value))
+    #     if (self.params["automana"]["low_lim"] < mana_value < self.params["automana"]["high_lim"]) and self.automana_active and self.params["automana"]["active"]:
+    #         if self.automana_timeout >= self.params["automana"]["timeout"]:  # ms
+    #             print("Automana activated")
+    #             for key_to_send in self.params["automana"]["keys"][self.automana_pointer]:
+    #                 keyboard.send(str(key_to_send))
+    #                 time.sleep(0.05)
+    #             self.automana_pointer += 1
+    #             if self.automana_pointer == len(self.params["automana"]["keys"]):
+    #                 self.automana_pointer = 0
+    #             self.automana_timeout = 0
 
     def hook_all(self):
         """hook_all"""
-        self.autoheal_active = 1
-        self.automana_active = 1
-        print("autoheal:", self.params["autoheal"])
-        print("automana:", self.params["automana"])
         self.buttons_window.set_visual_style_hooked()
         QApplication.processEvents()
         self.mymouse.hook_all()
         self.my_keyboard.hook_all()
         self.recorder.hook_all()
+        AutomationWorkers.hook_all()
 
     def unhook_all(self):
         """unhook_all"""
-        print("unhooking autoheal")
-        print("unhooking automana")
-        self.autoheal_active = 0
-        self.automana_active = 0
         self.buttons_window.set_visual_style_unhooked()
         QApplication.processEvents()
         self.mymouse.unhook_all()
         self.my_keyboard.unhook_all()
         self.recorder.unhook_all()
+        AutomationWorkers.unhook_all()
 
     def close_windows(self):
         """close windows"""
