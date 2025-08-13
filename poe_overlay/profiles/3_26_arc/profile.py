@@ -35,10 +35,10 @@ class KeyboardWorkers:
         """move items - fast click left with ctrl down"""
         if not worker:
             return params
-        sleep = 1
+        sleep = 0.03
         keyboard.press("ctrl")
         time.sleep(sleep)
-        for i in range(10):
+        for i in range(200):
             if not worker["_running"]:
                 keyboard.release("ctrl")
                 break
@@ -67,7 +67,7 @@ class KeyboardWorkers:
         worker["_running"] = False
 
     @staticmethod
-    def use_skill_repeatedly(worker, params={"active": True, "hotkey": "space", "timeout": 10}):
+    def use_skill_repeatedly(worker, params={"active": False, "hotkey": "space", "timeout": 10}):
         """use skill repeatidly - for example molten shell"""
         if not worker:
             return params
@@ -103,7 +103,7 @@ class MouseWorkers:
     """functions for mouse automation"""
 
     @staticmethod
-    def wheel_forward(worker, params={"hotkey": "wf","active": True, "timeout": 1, "flasks": [[8,9]]}):
+    def wheel_forward(worker, params={"hotkey": "wf","active": True, "timeout": 1, "flasks": [[3,4,5]]}):
         """wheel_forward"""
         if not worker:
             params["_flasks_pointer"] = 0
@@ -120,7 +120,7 @@ class MouseWorkers:
             worker["_running"] = False
 
     @staticmethod
-    def wheel_backward(worker, params={"hotkey": "wb","active": True, "timeout": 2}):
+    def wheel_backward(worker, params={"hotkey": "wb","active": False, "timeout": 2}):
         """wheel_forward"""
         if not worker:
             return params
@@ -133,7 +133,7 @@ class MouseWorkers:
             worker["_running"] = False
 
     @staticmethod
-    def click_middle_button(worker, params={"hotkey": "cmb","active": True, "timeout": 2, "toggle": True}):
+    def click_middle_button(worker, params={"hotkey": "cmb","active": False, "timeout": 2, "toggle": True}):
         """use skill repeatidly - for example molten shell"""
         if not worker:
             return params
@@ -172,12 +172,14 @@ class AutomationWorkers:
             print("automation unhooked ... ")
 
     @staticmethod
-    def autoheal(widget, heal_value, game_active, pprint=False, params={"active": True, "keys": [[1, 2], [3]], "low_lim": 13, "high_lim": 60, "timeout": 1}):
+    def autoheal(widget, heal_value, game_active, pprint=False, params={"active": True, "keys": [[1]], "low_lim": 13, "high_lim": 70, "timeout": 1000}):
         """wheel_forward"""
         if pprint:
             print(f"{'Autoheal started':<20}{params}")
             return
+        # print("autoheal")
         AutomationWorkers.heal_timeout += 10
+        # print(params["low_lim"] , heal_value , params["high_lim"], game_active , params["active"], AutomationWorkers.hooked)
         widget.label.setText(str(heal_value))
         if (params["low_lim"] < heal_value < params["high_lim"]) and game_active and params["active"] and AutomationWorkers.hooked:
             if AutomationWorkers.heal_timeout >= params["timeout"]:  # ms
@@ -191,7 +193,7 @@ class AutomationWorkers:
                 AutomationWorkers.heal_timeout = 0
 
     @staticmethod
-    def automana(widget, mana_value, game_active, pprint=False, params={"active": True, "keys": [[1, 2], [3]], "low_lim": 13, "high_lim": 60, "timeout": 1}):
+    def automana(widget, mana_value, game_active, pprint=False, params={"active": True, "keys": [[5]], "low_lim": 1, "high_lim": 50, "timeout": 1000}):
         """wheel_forward"""
         if pprint:
             print(f"{'Automana started':<20}{params}")
@@ -229,7 +231,7 @@ params = {
     },
     "frame_health_bar": {"geometry": [105, 910, 15, 180], "css": "QLabel {background-color: transparent;border: 1px solid red;color: white;font-size: 14px;}"},
     "frame_health_value": {"geometry": [240, 910, 70, 70], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},
-    "frame_mana_bar": {"geometry": [1600, 910, 15, 180], "css": "QLabel {background-color: transparent;border: 1px solid blue;color: white;font-size: 14px;}"},
-    "frame_mana_value": {"geometry": [1500, 910, 70, 70], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},
+    "frame_mana_bar": {"geometry": [1770, 910, 15, 180], "css": "QLabel {background-color: transparent;border: 1px solid blue;color: white;font-size: 14px;}"},
+    "frame_mana_value": {"geometry": [1600, 910, 70, 70], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},
     "frame_scan": {"geometry": [5, 29, 1910, 1120], "css": "QLabel {background-color: transparent;border: 2px solid red;color: white;font-size: 14px;}"},
 }
