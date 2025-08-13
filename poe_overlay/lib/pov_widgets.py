@@ -13,15 +13,30 @@ from PyQt5 import (
 class ButtonsWidget(QtWidgets.QWidget):
     """buttons window"""
 
-    def __init__(self, params):
+    def __init__(self, params, settings):
         super().__init__()
         self.params = params
-        # print((os.path.join(os.path.dirname(os.path.dirname(__file__))), params["paths"]["path_frame_buttons_ui"])
+        self.settings = settings
         uic.loadUi(os.path.join(os.path.dirname(os.path.dirname(__file__)), params["paths"]["path_frame_buttons_ui"]), self)
         self.setWindowFlags(qtc.Qt.WindowStaysOnTopHint)
         self.setWindowFlags(qtc.Qt.FramelessWindowHint | qtc.Qt.WindowStaysOnTopHint | qtc.Qt.Tool)
+        self.move(*self.settings.get("widget_buttons_position", [0, 0]))
+
         self.oldPos = None
         self.setStyleSheet(self.params["frame_buttons"]["css"])
+        self._init_checkbox_states()
+
+    def _init_checkbox_states(self):
+        """_init_checkbox_states: set states of checkboxes based on settings"""
+        for widget in self.children():
+            if isinstance(widget, QCheckBox):
+                widget.setChecked(self.settings["checkboxes"][widget.text()])
+
+    def _on_checkbox_clicked(self):
+        """on_checkbox_clicked: write state to settings"""
+        if "checkboxes" not in self.settings:
+            self.settings["checkboxes"] = {}
+        self.settings["checkboxes"][self.sender().text()] = self.sender().isChecked()
 
     def connect_buttons(self, function):
         """_summary_
@@ -42,6 +57,9 @@ class ButtonsWidget(QtWidgets.QWidget):
         for widget in self.children():
             if isinstance(widget, QCheckBox):
                 widget.clicked.connect(function)
+                widget.clicked.connect(self._on_checkbox_clicked)
+
+
 
     def set_visual_style_hooked(self):
         """set hooked visual state of hooked and unhooked buttons"""
@@ -71,6 +89,7 @@ class ButtonsWidget(QtWidgets.QWidget):
             delta = QPoint(evt.globalPos() - self.oldPos)
             self.move(self.x() + delta.x(), self.y() + delta.y())
             self.oldPos = evt.globalPos()
+            self.settings["widget_buttons_position"] = [self.pos().x(), self.pos().y()]
 
 
 class FrameWidget(QtWidgets.QWidget):
@@ -98,6 +117,7 @@ class FrameWidget(QtWidgets.QWidget):
 
 class RecorderWidget(QtWidgets.QFrame):
     """save window"""
+
     def __init__(self, params):
         super().__init__()
         self.params = params

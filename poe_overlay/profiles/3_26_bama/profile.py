@@ -31,7 +31,7 @@ class KeyboardWorkers:
         worker["_running"] = False
 
     @staticmethod
-    def fast_click_left_with_ctrl_down(worker, params={"hotkey": "f4", "active": True, "togle": True}):
+    def click_left_with_ctrl_down(worker, params={"hotkey": "f4", "active": True, "togle": True}):
         """move items - fast click left with ctrl down"""
         if not worker:
             return params
@@ -49,7 +49,7 @@ class KeyboardWorkers:
         worker["_running"] = False
 
     @staticmethod
-    def fast_click_left_with_shift_down(worker, params={"hotkey": "f5", "active": True, "togle": True}):
+    def click_left_with_shift_down(worker, params={"hotkey": "f5", "active": True, "togle": True}):
         """move items - fast click left with ctrl down"""
         if not worker:
             return params
@@ -103,7 +103,7 @@ class MouseWorkers:
     """functions for mouse automation"""
 
     @staticmethod
-    def wheel_forward(worker, params={"active": True, "timeout": 2, "flasks": [[4, 5, 6]]}):
+    def wheel_forward(worker, params={"hotkey": "wf","active": True, "timeout": 1, "flasks": [[8,9]]}):
         """wheel_forward"""
         if not worker:
             params["_flasks_pointer"] = 0
@@ -120,7 +120,7 @@ class MouseWorkers:
             worker["_running"] = False
 
     @staticmethod
-    def wheel_backward(worker, params={"active": True, "timeout": 2}):
+    def wheel_backward(worker, params={"hotkey": "wb","active": True, "timeout": 2}):
         """wheel_forward"""
         if not worker:
             return params
@@ -133,7 +133,7 @@ class MouseWorkers:
             worker["_running"] = False
 
     @staticmethod
-    def click_middle_button(worker, params={"active": True, "timeout": 2, "toggle": True}):
+    def click_middle_button(worker, params={"hotkey": "cmb","active": True, "timeout": 2, "toggle": True}):
         """use skill repeatidly - for example molten shell"""
         if not worker:
             return params
@@ -157,21 +157,26 @@ class AutomationWorkers:
     @staticmethod
     def hook_all():
         """hook_all"""
-        AutomationWorkers.hooked = True
-        AutomationWorkers.autoheal(None, None, None, pprint=True)
-        AutomationWorkers.automana(None, None, None, pprint=True)
-
+        if not AutomationWorkers.hooked:
+            print("-" * 30, " AUTOMATION ", "-" * 30)  
+            AutomationWorkers.hooked = True
+            AutomationWorkers.autoheal(None, None, None, pprint=True)
+            AutomationWorkers.automana(None, None, None, pprint=True)
+            print()
+        
     @staticmethod
     def unhook_all():
         """hook_all"""
-        AutomationWorkers.hooked = False
-        print("automation unhooked ... ")
+        if AutomationWorkers.hooked:
+            AutomationWorkers.hooked = False
+            print("automation unhooked ... ")
 
     @staticmethod
     def autoheal(widget, heal_value, game_active, pprint=False, params={"active": True, "keys": [[1, 2], [3]], "low_lim": 13, "high_lim": 60, "timeout": 1}):
         """wheel_forward"""
         if pprint:
-            return params
+            print(f"{'Autoheal started':<20}{params}")
+            return
         AutomationWorkers.heal_timeout += 10
         widget.label.setText(str(heal_value))
         if (params["low_lim"] < heal_value < params["high_lim"]) and game_active and params["active"] and AutomationWorkers.hooked:
@@ -189,7 +194,8 @@ class AutomationWorkers:
     def automana(widget, mana_value, game_active, pprint=False, params={"active": True, "keys": [[1, 2], [3]], "low_lim": 13, "high_lim": 60, "timeout": 1}):
         """wheel_forward"""
         if pprint:
-            return params
+            print(f"{'Automana started':<20}{params}")
+            return
         AutomationWorkers.mana_timeout += 10
         widget.label.setText(str(mana_value))
         if (params["low_lim"] < mana_value < params["high_lim"]) and game_active and params["active"] and AutomationWorkers.hooked:
@@ -203,14 +209,13 @@ class AutomationWorkers:
                     AutomationWorkers.mana_pointer = 0
                 AutomationWorkers.mana_timeout = 0
 
-
-LIGHT = "rgb(200, 200, 200)"
-NORMAL = "rgb(150, 150, 150)"
-DARK = "rgb(100, 100, 100)"
+NORMAL = "blue"
+LIGHT = f"light{NORMAL}"
+DARK = f"dark{NORMAL}"
 
 params = {
     "paths": {
-        "target_app_name": "Path of Exile",
+        "target_app_name": "Path of Exilepconc",
         "path_frame_buttons_ui": "res\\frame_buttons.ui",
         "path_frame_recorder_ui": "res\\frame_recorder.ui",
         "path_icon_running": "res\\running.png",
@@ -218,9 +223,9 @@ params = {
     },
     "frame_buttons": {
         "geometry": [600, 1000, 0, 0],
-        "css": f"QFrame{{background-color: {DARK};}} QWidget{{background-color: blue;}} QPushButton{{background-color: {DARK};font: 10pt 'MS Shell Dlg 2';}}",
-        "button_active": f"background-color: {NORMAL}",
-        "button_inactive": f"background-color: {DARK}",
+        "css": f"QWidget{{background-color: {NORMAL};}} QComboBox,QPushButton{{background-color: {NORMAL};font: 10pt 'MS Shell Dlg 2';}}",
+        "button_active": f"background-color: {LIGHT}",
+        "button_inactive": f"background-color: {NORMAL}",
     },
     "frame_health_bar": {"geometry": [105, 910, 15, 180], "css": "QLabel {background-color: transparent;border: 1px solid red;color: white;font-size: 14px;}"},
     "frame_health_value": {"geometry": [240, 910, 70, 70], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},

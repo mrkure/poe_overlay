@@ -11,7 +11,7 @@ from lib._main import Driver
 import lib.pov_tools as tools
 
 SELF_DIR_PATH = os.path.dirname(__file__)
-SETTINGS_PATH = rf"{os.path.dirname(__file__)}\_settings.toml"
+SETTINGS_PATH = rf"{os.path.dirname(__file__)}\res\_settings.toml"
 
 class PoeOverlayTray(QSystemTrayIcon, QWidget):
     """poe overlay tray class"""
@@ -46,19 +46,12 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
 
     def on_recorder_widget_line_edit_save_enter_pressed(self):
         """on_recorder_widget_line_edit_save_enter_pressed -> save recording"""
-        filename = f"{self.main.recorder_widget.lineEdit_save.text()}.json"
-        mouse_move_delay = float(self.main.recorder_widget.lineEdit_mouse_move_delay.text())
-        other_keys_delay = float(self.main.recorder_widget.lineEdit_other_keys_delay.text())
-        repeat = int(self.main.recorder_widget.lineEdit_repeat.text())
-        dic = {"filename": filename, "mouse_move_delay": mouse_move_delay, "other_keys_delay": other_keys_delay, "repeat": repeat}
-
-        if len(filename.split("-")) == 3:
-            self.main.recorder.save(dic)
+        if len(self.main.recorder_widget.lineEdit_save.text().split("-")) == 2:
+            self.main.recorder.save(self.main.recorder_widget)
             self.main.recorder_widget.hide()
             self.setup_windows()
         else:
             print("Cannot save, wrong name format")
-            self.main.recorder_widget.hide()
 
     def on_buttons_window_edit_button_clicked(self):
         """reload window"""
@@ -66,6 +59,11 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
         subprocess.run(["code", path], check=False, shell=True)
 
         self.setup_windows()
+
+    def on_buttons_window_close_button_clicked(self):
+        """on_buttons_window_close_button_clicked"""
+        tools.write_configs_toml(SETTINGS_PATH, self.settings)
+        self.main.close_windows()
 
     def on_tray_click(self, button):
         """close or create main window app"""
@@ -90,19 +88,23 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
 
     def setup_windows(self):
         """reactivate windows"""
+        tools.write_configs_toml(SETTINGS_PATH, self.settings)
+
         try:
             self.main.close_windows()
         except:
             pass
         self.main = Driver(self.settings)
+        self.main.buttons_window.pushButton_close.clicked.connect(self.on_buttons_window_close_button_clicked)
         self.main.buttons_window.pushButton_edit.clicked.connect(self.on_buttons_window_edit_button_clicked)
         self.main.buttons_window.pushButton_reload.clicked.connect(self.on_buttons_window_reload_button_clicked)
         self.main.buttons_window.comboBox_profile.currentIndexChanged.connect(self.on_combobox_profile_index_change)
         self.main.recorder_widget.lineEdit_save.returnPressed.connect(self.on_recorder_widget_line_edit_save_enter_pressed)
         # self.main.recorder.on_saved(self.pprint)
 
-
+        
     def load_settings(self):
+        """load_settings"""
         tools.read_config_toml(SETTINGS_PATH)
 
 if __name__ == "__main__":

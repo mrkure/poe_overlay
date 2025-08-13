@@ -6,7 +6,7 @@ from typing import Dict
 
 import keyboard
 import pov_tools as tools
-
+import pandas as pd
 
 
 class KeyboardManager:
@@ -16,6 +16,15 @@ class KeyboardManager:
         self.hooked = False
         self.workers = []
         self.get_workers(keyboard_functions)
+
+    def _print_workers(self):
+        print("-" * 30, " KEYBOARD ", "-" * 30)
+        df = pd.DataFrame([worker for worker in self.workers])
+        df = df[[i for i in df.columns if i[0] != "_"]]
+        cols_to_front = ["name", "hotkey", "active"]
+        df = df[cols_to_front + [col for col in df.columns if col not in cols_to_front]]
+        df = df.fillna("")
+        print(df, "\n")
 
     def add_task(self, worker: Dict) -> None:
         """add task to keyboard hooks using key shortcut
@@ -58,18 +67,19 @@ class KeyboardManager:
     def hook_all(self):
         """hook all shortcuts"""
         if not self.hooked:
+            self._print_workers()
             for worker in self.workers:
                 if worker["active"]:
-                    print(f"{'adding keyboard':<20}{tools.remove_dict_keys_with_underscore(worker)}")
                     self.add_task(worker)
             self.hooked = True
 
     def unhook_all(self):
         """unhook all workers"""
         if self.hooked:
+            print("keyboard unhooked ...")
             for worker in self.workers:
                 if worker["active"]:
-                    print(f"{'removing keyboard':<20}{worker['name']}")
+                    # print(f"{'removing keyboard':<20}{worker['name']}")
                     keyboard.remove_hotkey(worker["_id"])
                     worker["_running"] = False
                 self.hooked = False
@@ -84,10 +94,19 @@ class KeyboardManager:
             worker["_thread"] = None
             self.workers.append(worker)
 
+    def pause_all(self):
+        """pause"""
+        for worker in self.workers:
+            worker["_paused"] = True
 
+    def unpause_all(self):
+        """pause"""
+        for worker in self.workers:
+            worker["_paused"] = False
 
 if __name__ == "__main__":
     from pov_workers import KeyboardWorkers
+
     kb_manager = KeyboardManager(KeyboardWorkers)
     kb_manager.hook_all()
     kb_manager.wait_for_exit()

@@ -103,7 +103,7 @@ class MouseWorkers:
     """functions for mouse automation"""
 
     @staticmethod
-    def wheel_forward(worker, params={"active": True, "timeout": 2, "flasks": [[4, 5, 6]]}):
+    def wheel_forward(worker, params={"hotkey": "f5","active": True, "timeout": 2, "flasks": [[4, 5, 6]]}):
         """wheel_forward"""
         if not worker:
             params["_flasks_pointer"] = 0
@@ -120,7 +120,7 @@ class MouseWorkers:
             worker["_running"] = False
 
     @staticmethod
-    def wheel_backward(worker, params={"active": True, "timeout": 2}):
+    def wheel_backward(worker, params={"hotkey": "f5","active": True, "timeout": 2}):
         """wheel_forward"""
         if not worker:
             return params
@@ -133,7 +133,7 @@ class MouseWorkers:
             worker["_running"] = False
 
     @staticmethod
-    def click_middle_button(worker, params={"active": True, "timeout": 2, "toggle": True}):
+    def click_middle_button(worker, params={"hotkey": "f5","active": True, "timeout": 2, "toggle": True}):
         """use skill repeatidly - for example molten shell"""
         if not worker:
             return params

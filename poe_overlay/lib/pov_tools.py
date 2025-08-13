@@ -30,6 +30,12 @@ def remove_dict_keys_with_underscore(obj):
 
     return remove_keys_recursive(_mydict)
 
+def print_dic(dic):
+    dic = remove_dict_keys_with_underscore(dic)
+    new = {"hotkey":0, "active":0, "name":0}
+    new  = {**new, **dic}
+    return  new
+
 # def read_config_toml():
 #     """load config"""
 #     config = r"c:\_software\poe_overlay\poe_overlay\profiles"

@@ -5,6 +5,7 @@ import inspect
 import mouse  # type: ignore
 import keyboard
 import pov_tools as tools
+import pandas as pd
 
 
 class MouseManager:
@@ -14,6 +15,18 @@ class MouseManager:
         self.workers = {}
         self.hooked = False
         self.get_workers(mouse_functions)
+
+    def _print_workers(self):
+        print("-" * 30, " MOUSE ", "-" * 30)
+        df = pd.DataFrame([worker for (_, worker) in self.workers.items()])
+        df = df[[i for i in df.columns if i[0] != "_"]]
+        cols_to_front = ["name", "hotkey", "active"]
+        df = df[cols_to_front + [col for col in df.columns if col not in cols_to_front]]
+        df = df.fillna("")
+        print(df, "\n")
+
+
+
 
     def _toggle_worker(self, event):
         if hasattr(event, "delta"):
@@ -30,7 +43,7 @@ class MouseManager:
                 return
         else:
             return
-        if not worker["active"]:
+        if not worker["active"] or worker["_paused"]:
             return
         if not worker["_running"]:
             print(f"Starting...{worker['name']}")
@@ -49,27 +62,33 @@ class MouseManager:
 
     def hook_all(self):
         """hook mouse"""
+
         if not self.hooked:
-            for _, worker in self.workers.items():
-                if worker["active"]:
-                    print(f"{'adding mouse':<20}{tools.remove_dict_keys_with_underscore(worker)}")
+            self._print_workers()
+            # for _, worker in self.workers.items():
+                # if worker["active"]:
+                    # print(f"{'adding mouse':<20}{tools.print_dic(worker)}")
             mouse.hook(self._toggle_worker)
             self.hooked = True
 
     def unhook_all(self):
         """unhook mouse"""
         if self.hooked:
-            for _, worker in self.workers.items():
-                print(f"{'removing mouse':<20} {worker['name']}")
-                worker["_running"] = False
+            print("mouse unhooked ...")
+            # for _, worker in self.workers.items():
+            #     print(f"{'removing mouse':<20}{worker['name']}")
+            #     worker["_running"] = False
             mouse.unhook_all()
             self.hooked = False
+
 
     def get_workers(self, mouse_functions):
         """map functions to worker dictionaries"""
         for name, func in inspect.getmembers(mouse_functions, inspect.isfunction):
             worker = func(None)
+            # worker["hotkey"] = "".join([i[0] for i in name.split("_")])
             worker["name"] = name
+            worker["_paused"] = False
             worker["_function"] = func
             worker["_running"] = False
             worker["_thread"] = None
