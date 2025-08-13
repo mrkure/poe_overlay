@@ -8,15 +8,16 @@ from pathlib import Path
 
 import mouse
 import keyboard
+import pandas as pd
 
 
 class Recorder:
     """recorder class"""
 
-    def __init__(self, params):
-        self.jsons = {}
-        self.workers = {}
-        self.params = params
+    def __init__(self, settings):
+        self.jsons = []
+        self.workers = []
+        self.settings = settings
         self.current_recording = []
         self.recording = False
         self._start_time = None
@@ -94,9 +95,13 @@ class Recorder:
         if self.recording_end_callback:
             self.recording_end_callback()
 
-    def save(self, data):
+    def save(self, recorder_widget):
         """save record"""
-        filename = data["filename"]
+        filename = f"{recorder_widget.lineEdit_save.text()}.json"
+        mouse_move_delay = float(recorder_widget.lineEdit_mouse_move_delay.text())
+        other_keys_delay = float(recorder_widget.lineEdit_other_keys_delay.text())
+        repeat = int(recorder_widget.lineEdit_repeat.text())
+        save_path = f"{self.settings['base_dir']}/{self.settings['paths']['path_profiles']}/{self.settings['active_profile_name']}/{filename}"
 
         self.current_recording.sort(key=lambda e: e["time"])
         for num, e in enumerate(self.current_recording):
@@ -108,56 +113,64 @@ class Recorder:
             except:
                 e["next_event"] = None
 
-        data["events"] = self.current_recording
-        with open(filename, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4)
+        recording_dic = {"_filename": filename, "mouse_move_delay": mouse_move_delay, "other_keys_delay": other_keys_delay, "repeat": repeat, "_events": self.current_recording}
+
+        with open(save_path, "w", encoding="utf-8") as f:
+            json.dump(recording_dic, f, indent=4)
 
         print(f"[Saved {len(self.current_recording)} events to {filename}]")
 
-    def load(self, filename):
-        """load all records"""
-        with open(filename, "r", encoding="utf-8") as f:
-            self.current_recording = json.load(f)
-        print(f"[Loaded {len(self.current_recording)} events from {filename}]")
-
     def read_records_json(self):
         """load config"""
-        name = self.params["active_profile_name"].split("-")[0]
-        json_files = [str(f) for f in Path(os.path.dirname(os.path.dirname(__file__))).glob("*.json")]
+
+        dirr = f"{self.settings['base_dir']}/{self.settings['paths']['path_profiles']}/{self.settings['active_profile_name']}"
+        json_files = [str(f) for f in Path(dirr).glob("*.json")]
         for file in json_files:
-            if os.path.basename(file).replace(".toml", "").split("-")[0] == name or os.path.basename(file).replace(".toml", "").split("-")[0] == "all":
+            if ".json" in file and len(file.split("-")) > 1:
                 with open(file, "r", encoding="utf-8") as f:
-                    self.jsons[os.path.basename(file).replace(".json", "")] = json.load(f)
+                    key = os.path.basename(file).replace(".json", "")
+                    worker = json.load(f)
+                    worker["hotkey"] = key.split("-")[0]
+                    worker["name"] = key.split("-")[1]
+                    self.workers.append(worker)
+
+    def _print_workers(self):
+        print("-" * 30, " RECORDER ", "-" * 30)
+        df = pd.DataFrame([worker for worker in self.workers])
+        df = df[[i for i in df.columns if i[0] != "_"]]
+        if df.empty:
+            print("\n")
+            return
+        cols_to_front = ["name", "hotkey"]
+        df = df[cols_to_front + [col for col in df.columns if col not in cols_to_front]]
+        df = df.fillna("")
+        print(df, "\n")
 
     def hook_all(self):
         """hook_all"""
         if not self.hooked:
-            for key, value in self.jsons.items():
-                worker = {"hotkey": key.split("-")[1], "name": key.split("-")[2], "recording": value}
-                info = ", ".join(key + ": " + str(value) for key, value in worker['recording'].items() if key not in ("events", "filename"))                
-                print(f"{'adding record':<20}  {worker['hotkey']:<25}: {worker['name']}, {info}")
+            self._print_workers()
+            for worker in self.workers:
                 _id = keyboard.add_hotkey(worker["hotkey"], self.replay, args=(worker,))
-                worker["id"] = _id
-                self.workers[key] = worker
+                worker["_id"] = _id
             self.hooked = True
 
     def unhook_all(self):
         """unhook all workers"""
         if self.hooked:
-            for worker in self.workers.values():
-                print(f"{'removing record':<20}  {worker['hotkey']:<15}: {worker['name']}")
-                keyboard.remove_hotkey(worker["id"])
-                worker["running"] = False
+            print("recorder unhooked ...")
+            for worker in self.workers:
+                keyboard.remove_hotkey(worker["_id"])
+                worker["_running"] = False
             self.hooked = False
-
 
     def replay(self, worker):
         """replay record"""
-        print(f"\nReplaying {worker['name']} {len(worker['recording']['events'])} events...")
+        print(f"\nReplaying {worker['name']} {len(worker['_events'])} events...")
         init_pos = mouse.get_position()
 
-        for _ in range(worker["recording"]["repeat"]):
-            for e in worker["recording"]["events"]:
+        for _ in range(worker["repeat"]):
+            for e in worker["_events"]:
                 if e["type"] == "mouse":
                     if e["event_type"] == "move":
                         mouse.move(e["x"], e["y"])
@@ -176,9 +189,9 @@ class Recorder:
 
                 x, y = mouse.get_position()
                 if e["next_event"] == "mouse_move":
-                    time.sleep(worker["recording"]["mouse_move_delay"])
+                    time.sleep(worker["mouse_move_delay"])
                 else:
-                    time.sleep(worker["recording"]["other_keys_delay"])
+                    time.sleep(worker["other_keys_delay"])
                 xx, yy = mouse.get_position()
 
                 # interrupt on mouse move during replaying

@@ -1,0 +1,18 @@
+target_app_name = "Path of Exile"
+active_profile_name = "3_26_pconc"
+base_dir = "C:\\_software\\poe_overlay\\poe_overlay"
+widget_buttons_position = [ 546, 1038,]
+
+[paths]
+path_frame_buttons_ui = "res\\frame_buttons.ui"
+path_frame_recorder_ui = "res\\frame_recorder.ui"
+path_icon_running = "res\\running.png"
+path_icon_stopped = "res\\stopped.png"
+path_profiles = "profiles"
+
+[checkboxes]
+S = true
+H = false
+Hv = true
+M = false
+Mv = true
