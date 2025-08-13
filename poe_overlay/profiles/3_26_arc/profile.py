@@ -209,7 +209,7 @@ class AutomationWorkers:
                     AutomationWorkers.mana_pointer = 0
                 AutomationWorkers.mana_timeout = 0
 
-NORMAL = "red"
+NORMAL = "blue"
 LIGHT = f"light{NORMAL}"
 DARK = f"dark{NORMAL}"
 

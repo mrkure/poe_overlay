@@ -4,26 +4,23 @@ import os
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtWidgets import QCheckBox, QPushButton, QDesktopWidget
 from PyQt5 import QtCore as qtc  # type: ignore
-from PyQt5 import (
-    QtWidgets,  # type: ignore
-    uic,
-)
+from PyQt5 import QtWidgets, uic  # type: ignore
 
 
 class ButtonsWidget(QtWidgets.QWidget):
     """buttons window"""
 
-    def __init__(self, params, settings):
+    def __init__(self, profile, settings):
         super().__init__()
-        self.params = params
+        self.profile = profile
         self.settings = settings
-        uic.loadUi(os.path.join(os.path.dirname(os.path.dirname(__file__)), params["paths"]["path_frame_buttons_ui"]), self)
+        uic.loadUi( f"{self.settings['base_dir']}/{self.settings['paths']['path_frame_buttons_ui']}", self)
         self.setWindowFlags(qtc.Qt.WindowStaysOnTopHint)
         self.setWindowFlags(qtc.Qt.FramelessWindowHint | qtc.Qt.WindowStaysOnTopHint | qtc.Qt.Tool)
         self.move(*self.settings.get("widget_buttons_position", [0, 0]))
 
         self.oldPos = None
-        self.setStyleSheet(self.params["frame_buttons"]["css"])
+        self.setStyleSheet(self.profile["frame_buttons"]["css"])
         self._init_checkbox_states()
 
     def _init_checkbox_states(self):
@@ -39,37 +36,27 @@ class ButtonsWidget(QtWidgets.QWidget):
         self.settings["checkboxes"][self.sender().text()] = self.sender().isChecked()
 
     def connect_buttons(self, function):
-        """_summary_
-
-        Args:
-            function (_type_): connects to callback function all buttons by their text property
-        """
+        """connect_buttons"""
         for widget in self.children():
             if isinstance(widget, QPushButton):
                 widget.clicked.connect(function)
 
     def connect_checkboxes(self, function):
-        """_summary_
-
-        Args:
-            function (_type_): connects to callback function all checkboxes by their text property
-        """
+        """connect_checkboxes"""
         for widget in self.children():
             if isinstance(widget, QCheckBox):
                 widget.clicked.connect(function)
                 widget.clicked.connect(self._on_checkbox_clicked)
 
-
-
     def set_visual_style_hooked(self):
         """set hooked visual state of hooked and unhooked buttons"""
-        self.pushButton_hooked.setStyleSheet(self.params["frame_buttons"]["button_active"])
-        self.pushButton_unhooked.setStyleSheet(self.params["frame_buttons"]["button_inactive"])
+        self.pushButton_hooked.setStyleSheet(self.profile["frame_buttons"]["button_active"])
+        self.pushButton_unhooked.setStyleSheet(self.profile["frame_buttons"]["button_inactive"])
 
     def set_visual_style_unhooked(self):
         """set hooked visual state of hooked and unhooked buttons"""
-        self.pushButton_hooked.setStyleSheet(self.params["frame_buttons"]["button_inactive"])
-        self.pushButton_unhooked.setStyleSheet(self.params["frame_buttons"]["button_active"])
+        self.pushButton_hooked.setStyleSheet(self.profile["frame_buttons"]["button_inactive"])
+        self.pushButton_unhooked.setStyleSheet(self.profile["frame_buttons"]["button_active"])
 
     def mousePressEvent(self, evt):
         """press event to move app

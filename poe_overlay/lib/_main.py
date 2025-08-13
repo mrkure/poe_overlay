@@ -1,6 +1,5 @@
 """main logic module"""
 
-import time
 import os
 import ctypes as c
 import multiprocessing as mp
@@ -56,8 +55,8 @@ class Driver(QtWidgets.QWidget):
         self.buttons_window.connect_checkboxes(self.on_button_window_checkbox_state_changed)
         # self.buttons_window.move(*self.params["frame_buttons"]["geometry"][0:2])
 
-        base_dir = Path(f'{self.settings["base_dir"]}/{self.settings["paths"]["path_profiles"]}')
-        dirs = [d for d in base_dir.iterdir() if d.is_dir() and  d.name != "all"]
+        base_dir = Path(f"{self.settings['base_dir']}/{self.settings['paths']['path_profiles']}")
+        dirs = [d for d in base_dir.iterdir() if d.is_dir() and d.name != "all"]
 
         for item in dirs:
             self.buttons_window.comboBox_profile.addItem(os.path.basename(item), userData=item)
@@ -143,7 +142,7 @@ class Driver(QtWidgets.QWidget):
             self.unhook_all()
 
         elif string == "Record":
-            self.buttons_window.set_visual_style_unhooked() 
+            self.buttons_window.set_visual_style_unhooked()
             QApplication.processEvents()
             self.my_keyboard.unhook_all()
             self.mymouse.unhook_all()
@@ -157,8 +156,6 @@ class Driver(QtWidgets.QWidget):
             for timer in self.timers:
                 timer.stop()
             self.close()
-
-        # print(string)
 
     def on_button_window_checkbox_state_changed(self):
         """callback method, react to checkbox press on buttons frame"""
@@ -217,7 +214,6 @@ class Driver(QtWidgets.QWidget):
         if self.game_active and not self.game_active_last:
             self.hook_all()
 
-
     def hook_all(self):
         """hook_all"""
         [print() for i in range(30)]
@@ -230,8 +226,6 @@ class Driver(QtWidgets.QWidget):
 
     def unhook_all(self):
         """unhook_all"""
-        # print("-"*30, " UNHOOKED " , "-"*30,)
-
         self.buttons_window.set_visual_style_unhooked()
         QApplication.processEvents()
         self.mymouse.unhook_all()
