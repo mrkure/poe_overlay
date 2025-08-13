@@ -8,8 +8,9 @@ from pathlib import Path
 import toml
 
 
-def load_params_module(dirr):
-    path = Path(rf"c:\_software\poe_overlay\poe_overlay\profiles\{dirr}") / "profile.py"
+def load_profile_module(dirr):
+    """dynamically load profile module"""
+    path = Path(rf"{dirr}") / "profile.py"
     module_name = "params"  # fixed name
     spec = importlib.util.spec_from_file_location(module_name, path)
     if spec:
@@ -48,5 +49,4 @@ def write_settings_toml(path, settings):
     settings.pop("base_dir")  # this one is added, during runtime in app_pov_overlay, value changed based on app location -> git problem
     with open(path, "w", encoding="utf-8") as f:
         toml.dump(settings, f)
-    settings["base_dir"] = base_dir # return it back after save
-    
+    settings["base_dir"] = base_dir  # return it back after save

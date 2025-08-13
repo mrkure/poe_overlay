@@ -30,7 +30,7 @@ class Driver(QtWidgets.QWidget):
     def __init__(self, settings):
         super().__init__()
         self.settings = settings
-        self.ImportedModule = tools.load_params_module(settings["active_profile_name"])
+        self.ImportedModule = tools.load_profile_module(f'{settings["base_dir"]}/{settings["paths"]["path_profiles"]}/{settings["active_profile_name"]}')
         self.params = self.ImportedModule.params
         self.params["active_profile_name"] = settings["active_profile_name"]
 
