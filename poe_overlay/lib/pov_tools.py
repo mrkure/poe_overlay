@@ -8,10 +8,11 @@ from pathlib import Path
 import toml
 
 
-def load_profile_module(dirr):
+def load_profile_module(settings):
     """dynamically load profile module"""
+    dirr = f'{settings["base_dir"]}/{settings["paths"]["path_profiles"]}/{settings["active_profile_name"]}'
     path = Path(rf"{dirr}") / "profile.py"
-    module_name = "params"  # fixed name
+    module_name = "profile"  # fixed name
     spec = importlib.util.spec_from_file_location(module_name, path)
     if spec:
         module = importlib.util.module_from_spec(spec)

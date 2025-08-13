@@ -30,7 +30,7 @@ class Driver(QtWidgets.QWidget):
     def __init__(self, settings):
         super().__init__()
         self.settings = settings
-        self.ImportedModule = tools.load_profile_module(f'{settings["base_dir"]}/{settings["paths"]["path_profiles"]}/{settings["active_profile_name"]}')
+        self.ImportedModule = tools.load_profile_module(self.settings)
         self.params = self.ImportedModule.params
         self.params["active_profile_name"] = settings["active_profile_name"]
 
@@ -41,7 +41,7 @@ class Driver(QtWidgets.QWidget):
         self._init_timers()
         self._init_rec_mouse_keyboard()
 
-        self.hwndMain = win32gui.FindWindow(None, self.params["paths"]["target_app_name"])  # set foreground window check
+        self.hwndMain = win32gui.FindWindow(None, self.settings["target_app_name"])  # set foreground window check
 
         # DRIVER VARIABLES
         self.game_active = False
@@ -195,7 +195,7 @@ class Driver(QtWidgets.QWidget):
         try:
             keyboard.press("alt")
             if self.hwndMain == 0:
-                self.hwndMain = win32gui.FindWindow(None, self.params["paths"]["target_app_name"])
+                self.hwndMain = win32gui.FindWindow(None, self.settings["target_app_name"])
             win32gui.SetForegroundWindow(self.hwndMain)
             keyboard.release("alt")
         except:
@@ -204,7 +204,7 @@ class Driver(QtWidgets.QWidget):
     def toggle_app_state_based_on_topmost_window(self):
         """hook, unhook all components, set visual state of button frame if target window is topmost or not"""
         self.game_active_last = self.game_active
-        if win32gui.GetWindowText(win32gui.GetForegroundWindow()) == self.params["paths"]["target_app_name"]:
+        if win32gui.GetWindowText(win32gui.GetForegroundWindow()) == self.settings["target_app_name"]:
             self.game_active = True
         else:
             self.game_active = False
