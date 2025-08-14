@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>646</width>
+    <width>591</width>
     <height>29</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -34,6 +40,12 @@
    </property>
    <item>
     <widget class="QPushButton" name="pushButton_hooked">
+     <property name="maximumSize">
+      <size>
+       <width>50</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
       <string>Hooked</string>
      </property>
@@ -41,6 +53,12 @@
    </item>
    <item>
     <widget class="QPushButton" name="pushButton_unhooked">
+     <property name="maximumSize">
+      <size>
+       <width>65</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
       <string>Unhooked</string>
      </property>
@@ -48,6 +66,12 @@
    </item>
    <item>
     <widget class="QPushButton" name="pushButton_record">
+     <property name="maximumSize">
+      <size>
+       <width>50</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
       <string>Record</string>
      </property>
@@ -55,6 +79,12 @@
    </item>
    <item>
     <widget class="QPushButton" name="pushButton_edit">
+     <property name="maximumSize">
+      <size>
+       <width>30</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
       <string>Edit</string>
      </property>
@@ -65,6 +95,12 @@
    </item>
    <item>
     <widget class="QPushButton" name="pushButton_reload">
+     <property name="maximumSize">
+      <size>
+       <width>50</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
       <string>Reload</string>
      </property>
@@ -139,6 +175,19 @@
      </property>
      <property name="checked">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="pushButton_toggle_checkboxes_visibility">
+     <property name="maximumSize">
+      <size>
+       <width>10</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </item>

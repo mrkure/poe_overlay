@@ -14,20 +14,32 @@ class ButtonsWidget(QtWidgets.QWidget):
         super().__init__()
         self.profile = profile
         self.settings = settings
-        uic.loadUi( f"{self.settings['base_dir']}/{self.settings['paths']['path_frame_buttons_ui']}", self)
+        uic.loadUi(f"{self.settings['base_dir']}/{self.settings['paths']['path_frame_buttons_ui']}", self)
         self.setWindowFlags(qtc.Qt.WindowStaysOnTopHint)
         self.setWindowFlags(qtc.Qt.FramelessWindowHint | qtc.Qt.WindowStaysOnTopHint | qtc.Qt.Tool)
         self.move(*self.settings.get("widget_buttons_position", [0, 0]))
-
+        self.pushButton_toggle_checkboxes_visibility.clicked.connect(self._on_button_slider_clicked)
+        self.checkboxes_hidden = True
         self.oldPos = None
         self.setStyleSheet(self.profile["frame_buttons"]["css"])
         self._init_checkbox_states()
+        self.adjustSize()
 
     def _init_checkbox_states(self):
         """_init_checkbox_states: set states of checkboxes based on settings"""
         for widget in self.children():
             if isinstance(widget, QCheckBox):
                 widget.setChecked(self.settings["checkboxes"][widget.text()])
+                widget.hide()
+    def _on_button_slider_clicked(self):
+        for widget in self.children():
+            if isinstance(widget, QCheckBox):
+                if self.checkboxes_hidden:
+                    widget.show()   
+                else:
+                    widget.hide()
+        self.adjustSize()
+        self.checkboxes_hidden = not self.checkboxes_hidden
 
     def _on_checkbox_clicked(self):
         """on_checkbox_clicked: write state to settings"""
