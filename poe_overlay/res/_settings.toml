@@ -1,6 +1,6 @@
 target_app_name = "Path of Exile"
 active_profile_name = "3_26_arc"
-widget_buttons_position = [ 709, 888,]
+widget_buttons_position = [ 644, 638,]
 
 [paths]
 path_frame_buttons_ui = "res\\frame_buttons.ui"

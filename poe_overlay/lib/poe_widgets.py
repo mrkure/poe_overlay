@@ -2,7 +2,7 @@
 
 import os
 from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtWidgets import QCheckBox, QPushButton, QDesktopWidget
+from PyQt5.QtWidgets import QToolButton, QPushButton, QDesktopWidget
 from PyQt5 import QtCore as qtc  # type: ignore
 from PyQt5 import QtWidgets, uic  # type: ignore
 
@@ -28,13 +28,13 @@ class ButtonsWidget(QtWidgets.QWidget):
     def _init_checkbox_states(self):
         """_init_checkbox_states: set states of checkboxes based on settings"""
         for widget in self.children():
-            if isinstance(widget, QCheckBox):
+            if isinstance(widget, QToolButton):
                 widget.setChecked(self.settings["checkboxes"][widget.text()])
                 widget.hide()
 
     def _on_button_slider_clicked(self):
         for widget in self.children():
-            if isinstance(widget, QCheckBox):
+            if isinstance(widget, QToolButton):
                 if self.checkboxes_hidden:
                     widget.show()
                 else:
@@ -54,10 +54,10 @@ class ButtonsWidget(QtWidgets.QWidget):
             if isinstance(widget, QPushButton):
                 widget.clicked.connect(function)
 
-    def connect_checkboxes(self, function):
+    def connect_toolbuttons(self, function):
         """connect_checkboxes"""
         for widget in self.children():
-            if isinstance(widget, QCheckBox):
+            if isinstance(widget, QToolButton):
                 widget.clicked.connect(function)
                 widget.clicked.connect(self._on_checkbox_clicked)
 

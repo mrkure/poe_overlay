@@ -52,7 +52,7 @@ class Driver(QtWidgets.QWidget):
         """setup buttons frame connect signal and show"""
         self.buttons_window = ButtonsWidget(self.params, self.settings)
         self.buttons_window.connect_buttons(self.on_button_window_button_clicked)
-        self.buttons_window.connect_checkboxes(self.on_button_window_checkbox_state_changed)
+        self.buttons_window.connect_toolbuttons(self.on_button_window_toolbutton_state_changed)
         # self.buttons_window.move(*self.params["frame_buttons"]["geometry"][0:2])
 
         base_dir = Path(f"{self.settings['base_dir']}/{self.settings['paths']['path_profiles']}")
@@ -70,20 +70,20 @@ class Driver(QtWidgets.QWidget):
     def _init_frames_widgets(self):
         """setup various frames on screen"""
         self.frame_scan_area = FrameWidget(self.params["frame_scan"], self.params["frame_scan"], outer_frame=True)
-        if self.buttons_window.checkBox_scan_area.isChecked():
+        if self.buttons_window.toolButton_scan_area.isChecked():
             self.frame_scan_area.show()
         self.frame_health_bar = FrameWidget(self.params["frame_scan"], self.params["frame_health_bar"], outer_frame=False)
-        if self.buttons_window.checkBox_health_bar.isChecked():
+        if self.buttons_window.toolButton_health_bar.isChecked():
             self.frame_health_bar.show()
         self.frame_health_value = FrameWidget(self.params["frame_scan"], self.params["frame_health_value"], outer_frame=False)
-        if self.buttons_window.checkBox_health_value.isChecked():
+        if self.buttons_window.toolButton_health_value.isChecked():
             self.frame_health_value.show()
 
         self.frame_mana_bar = FrameWidget(self.params["frame_scan"], self.params["frame_mana_bar"], outer_frame=False)
-        if self.buttons_window.checkBox_mana_bar.isChecked():
+        if self.buttons_window.toolButton_mana_bar.isChecked():
             self.frame_mana_bar.show()
         self.frame_mana_value = FrameWidget(self.params["frame_scan"], self.params["frame_mana_value"], outer_frame=False)
-        if self.buttons_window.checkBox_mana_value.isChecked():
+        if self.buttons_window.toolButton_mana_value.isChecked():
             self.frame_mana_value.show()
 
     def _init_multiprocessing_shared_memory(self):
@@ -157,8 +157,8 @@ class Driver(QtWidgets.QWidget):
                 timer.stop()
             self.close()
 
-    def on_button_window_checkbox_state_changed(self):
-        """callback method, react to checkbox press on buttons frame"""
+    def on_button_window_toolbutton_state_changed(self):
+        """callback method, react to toolbutton press on buttons frame"""
         self.bring_target_window_on_top()
 
         name = self.sender().text()

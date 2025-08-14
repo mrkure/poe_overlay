@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>591</width>
+    <width>611</width>
     <height>29</height>
    </rect>
   </property>
@@ -129,51 +129,64 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkBox_scan_area">
+    <widget class="Line" name="line">
+     <property name="minimumSize">
+      <size>
+       <width>5</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="toolButton_scan_area">
      <property name="text">
       <string>S</string>
      </property>
-     <property name="checked">
+     <property name="checkable">
       <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkBox_health_bar">
+    <widget class="QToolButton" name="toolButton_health_bar">
      <property name="text">
       <string>H</string>
      </property>
-     <property name="checked">
+     <property name="checkable">
       <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkBox_health_value">
+    <widget class="QToolButton" name="toolButton_health_value">
      <property name="text">
       <string>Hv</string>
      </property>
-     <property name="checked">
+     <property name="checkable">
       <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkBox_mana_bar">
+    <widget class="QToolButton" name="toolButton_mana_bar">
      <property name="text">
       <string>M</string>
      </property>
-     <property name="checked">
+     <property name="checkable">
       <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkBox_mana_value">
+    <widget class="QToolButton" name="toolButton_mana_value">
      <property name="text">
       <string>Mv</string>
      </property>
-     <property name="checked">
+     <property name="checkable">
       <bool>true</bool>
      </property>
     </widget>
