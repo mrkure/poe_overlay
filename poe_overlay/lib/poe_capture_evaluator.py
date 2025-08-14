@@ -1,4 +1,5 @@
 """capture evaluator module"""
+
 import time
 import numpy as np  # type: ignore
 import cv2 as cv  # type: ignore
@@ -7,10 +8,12 @@ from PyQt5 import QtCore as qtc  # type: ignore
 from PyQt5 import QtWidgets  # type: ignore
 from PyQt5.QtWidgets import QApplication, QVBoxLayout  # type: ignore
 
-import pov_monitor_grabber as lmg
+import poe_monitor_grabber as lmg
+
 
 class CaptureEvaluator:
     """health bar evaluator"""
+
     DEBUG = False
 
     @staticmethod

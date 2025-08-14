@@ -4,7 +4,7 @@ import threading
 import inspect
 import mouse  # type: ignore
 import keyboard
-import pov_tools as tools
+import poe_tools as tools
 import pandas as pd
 
 
@@ -24,9 +24,6 @@ class MouseManager:
         df = df[cols_to_front + [col for col in df.columns if col not in cols_to_front]]
         df = df.fillna("")
         print(df, "\n")
-
-
-
 
     def _toggle_worker(self, event):
         if hasattr(event, "delta"):
@@ -66,8 +63,8 @@ class MouseManager:
         if not self.hooked:
             self._print_workers()
             # for _, worker in self.workers.items():
-                # if worker["active"]:
-                    # print(f"{'adding mouse':<20}{tools.print_dic(worker)}")
+            # if worker["active"]:
+            # print(f"{'adding mouse':<20}{tools.print_dic(worker)}")
             mouse.hook(self._toggle_worker)
             self.hooked = True
 
@@ -80,7 +77,6 @@ class MouseManager:
             #     worker["_running"] = False
             mouse.unhook_all()
             self.hooked = False
-
 
     def get_workers(self, mouse_functions):
         """map functions to worker dictionaries"""
@@ -97,7 +93,7 @@ class MouseManager:
 
 
 if __name__ == "__main__":
-    from pov_workers import MouseWorkers
+    from poe_workers import MouseWorkers
 
     mo_manager = MouseManager(MouseWorkers)
     mo_manager.hook_all()

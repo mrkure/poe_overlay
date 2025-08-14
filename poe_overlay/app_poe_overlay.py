@@ -8,7 +8,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QSystemTrayIcon, QAction, QMenu, QApplication
 
 from lib._main import Driver
-import lib.pov_tools as tools
+import lib.poe_tools as tools
 
 SELF_DIR_PATH = os.path.dirname(__file__)
 SETTINGS_PATH = rf"{os.path.dirname(__file__)}\res\_settings.toml"

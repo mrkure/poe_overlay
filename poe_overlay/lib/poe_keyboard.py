@@ -5,7 +5,7 @@ import threading
 from typing import Dict
 
 import keyboard
-import pov_tools as tools
+import poe_tools as tools
 import pandas as pd
 
 
@@ -104,8 +104,9 @@ class KeyboardManager:
         for worker in self.workers:
             worker["_paused"] = False
 
+
 if __name__ == "__main__":
-    from pov_workers import KeyboardWorkers
+    from poe_workers import KeyboardWorkers
 
     kb_manager = KeyboardManager(KeyboardWorkers)
     kb_manager.hook_all()

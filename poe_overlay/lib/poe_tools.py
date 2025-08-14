@@ -10,7 +10,7 @@ import toml
 
 def load_profile_module(settings):
     """dynamically load profile module"""
-    dirr = f'{settings["base_dir"]}/{settings["paths"]["path_profiles"]}/{settings["active_profile_name"]}'
+    dirr = f"{settings['base_dir']}/{settings['paths']['path_profiles']}/{settings['active_profile_name']}"
     path = Path(rf"{dirr}") / "profile.py"
     module_name = "profile"  # fixed name
     spec = importlib.util.spec_from_file_location(module_name, path)
@@ -47,7 +47,7 @@ def load_settings_toml(path, base_dir):
 def write_settings_toml(path, settings):
     """writes path to currently active toml config"""
     base_dir = settings["base_dir"]
-    settings.pop("base_dir")  # this one is added, during runtime in app_pov_overlay, value changed based on app location -> git problem
+    settings.pop("base_dir")  # this one is added, during runtime in app_poe_overlay, value changed based on app location -> git problem
     with open(path, "w", encoding="utf-8") as f:
         toml.dump(settings, f)
     settings["base_dir"] = base_dir  # return it back after save

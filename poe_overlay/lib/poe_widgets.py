@@ -31,11 +31,12 @@ class ButtonsWidget(QtWidgets.QWidget):
             if isinstance(widget, QCheckBox):
                 widget.setChecked(self.settings["checkboxes"][widget.text()])
                 widget.hide()
+
     def _on_button_slider_clicked(self):
         for widget in self.children():
             if isinstance(widget, QCheckBox):
                 if self.checkboxes_hidden:
-                    widget.show()   
+                    widget.show()
                 else:
                     widget.hide()
         self.adjustSize()

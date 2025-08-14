@@ -14,12 +14,12 @@ from PyQt5 import QtCore as qtc  # type: ignore
 from PyQt5 import QtWidgets  # type: ignore
 from PyQt5.QtWidgets import QApplication
 
-import pov_tools as tools
-import pov_bg_process as bgp
-from pov_mouse import MouseManager
-from pov_keyboard import KeyboardManager
-from pov_widgets import ButtonsWidget, FrameWidget, RecorderWidget
-from pov_recorder import Recorder
+import poe_tools as tools
+import poe_bg_process as bgp
+from poe_mouse import MouseManager
+from poe_keyboard import KeyboardManager
+from poe_widgets import ButtonsWidget, FrameWidget, RecorderWidget
+from poe_recorder import Recorder
 
 
 class Driver(QtWidgets.QWidget):
