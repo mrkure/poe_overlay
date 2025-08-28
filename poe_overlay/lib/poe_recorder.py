@@ -180,18 +180,25 @@ class Recorder:
                         mouse.release(e["button"])
 
                 elif e["type"] == "keyboard":
-                    if e["event_type"] == "down":
-                        keyboard.press(e["name"])
-                    elif e["event_type"] == "up":
-                        keyboard.release(e["name"])
+                    if e["name"] == "esc":
+                        pass
+                    else:
+                        if e["event_type"] == "down":
+                            time.sleep(worker["other_keys_delay"])
+                            keyboard.press(e["name"])
+                            time.sleep(worker["other_keys_delay"])
+                        elif e["event_type"] == "up":
+                            time.sleep(worker["other_keys_delay"])
+                            keyboard.release(e["name"])
+                            time.sleep(worker["other_keys_delay"])
                 else:
                     pass
 
                 x, y = mouse.get_position()
                 if e["next_event"] == "mouse_move":
                     time.sleep(worker["mouse_move_delay"])
-                else:
-                    time.sleep(worker["other_keys_delay"])
+                # else:
+                #     time.sleep(worker["other_keys_delay"])
                 xx, yy = mouse.get_position()
 
                 # interrupt on mouse move during replaying
