@@ -10,9 +10,9 @@ import win32gui  # type: ignore
 import keyboard  # type: ignore
 import numpy as np  # type: ignore
 
-from PyQt5 import QtCore as qtc  # type: ignore
-from PyQt5 import QtWidgets  # type: ignore
-from PyQt5.QtWidgets import QApplication
+from PySide6 import QtCore as qtc  # type: ignore
+from PySide6 import QtWidgets  # type: ignore
+from PySide6.QtWidgets import QApplication
 
 import poe_tools as tools
 import poe_bg_process as bgp
@@ -92,7 +92,7 @@ class Driver(QtWidgets.QWidget):
         self.mp_capture = mp.Array(c.c_ubyte, h * w * 4)
         self.capture = np.frombuffer(self.mp_capture.get_obj(), dtype=np.uint8).reshape((h, w, 4))  # type: ignore
         self.mp_states = mp.Array(c.c_uint, 10)
-        self.states = np.frombuffer(self.mp_states.get_obj(), dtype=np.uint)  # type: ignore
+        self.states = np.frombuffer(self.mp_states.get_obj(), dtype=np.uint32)  # type: ignore
         self.p = Process(target=bgp.capture_screen, args=(self.mp_capture, self.mp_states, self.params), daemon=True)
         self.states[0] = 1
         self.p.start()
@@ -241,3 +241,4 @@ class Driver(QtWidgets.QWidget):
         self.unhook_all()
         self.p.kill()
         self.close()
+        # QApplication.quit()

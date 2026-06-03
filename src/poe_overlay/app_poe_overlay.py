@@ -4,9 +4,9 @@ import os
 import sys
 import subprocess
 
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QWidget, QSystemTrayIcon, QAction, QMenu, QApplication
-
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QWidget, QSystemTrayIcon, QMenu, QApplication
+from PySide6.QtGui import QAction
 from lib._main import Driver
 import lib.poe_tools as tools
 

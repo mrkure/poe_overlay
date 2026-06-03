@@ -1,12 +1,22 @@
 """gui elements module"""
 
 import os
-from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtWidgets import QToolButton, QPushButton, QDesktopWidget
-from PyQt5 import QtCore as qtc  # type: ignore
-from PyQt5 import QtWidgets, uic  # type: ignore
+from PySide6.QtCore import QPoint, Qt
+from PySide6.QtWidgets import QToolButton, QPushButton
+from PySide6 import QtCore as qtc  # type: ignore
+from PySide6 import QtWidgets  # type: ignore
+from PySide6.QtWidgets import QApplication  # Import klidně přímo sem, pokud není nahoře
+from PySide6.QtUiTools import QUiLoader # <--- Tohle nahrazuje uic
+from PySide6.QtCore import QFile
 
-
+class CustomUiLoader(QUiLoader):
+            def createWidget(self, class_name, parent=None, name=""):
+                # Pokud už widget s tímto jménem existuje (což je naše třída),
+                # použijeme ji, místo abychom vytvářeli nové prázdné okno
+                if parent is None and name:
+                    return self.baseinstance
+                return super().createWidget(class_name, parent, name)
+            
 class ButtonsWidget(QtWidgets.QWidget):
     """buttons window"""
 
@@ -14,7 +24,16 @@ class ButtonsWidget(QtWidgets.QWidget):
         super().__init__()
         self.profile = profile
         self.settings = settings
-        uic.loadUi(f"{self.settings['base_dir']}/{self.settings['paths']['path_frame_buttons_ui']}", self)
+        # Nejdřív si vytvoř souborový objekt
+        ui_file = QFile(f"{self.settings['base_dir']}/{self.settings['paths']['path_frame_buttons_ui']}")
+
+        if ui_file.open(QFile.ReadOnly):  
+            loader = CustomUiLoader()
+            loader.baseinstance = self  # Řekneme mu, že "self" je náš hlavní cíl
+            # Tímto se načte UI a VŠECHNY prvky se namapují přímo pod self.něco
+            loader.load(ui_file) 
+            ui_file.close()
+
         self.setWindowFlags(qtc.Qt.WindowStaysOnTopHint)
         self.setWindowFlags(qtc.Qt.FramelessWindowHint | qtc.Qt.WindowStaysOnTopHint | qtc.Qt.Tool)
         self.move(*self.settings.get("widget_buttons_position", [0, 0]))
@@ -122,7 +141,19 @@ class RecorderWidget(QtWidgets.QFrame):
         super().__init__()
         self.params = params
         # print((os.path.join(os.path.dirname(os.path.dirname(__file__))), params["paths"]["path_frame_buttons_ui"])
-        uic.loadUi(os.path.join(os.path.dirname(os.path.dirname(__file__)), params["paths"]["path_frame_recorder_ui"]), self)
+        # uic.loadUi(os.path.join(os.path.dirname(os.path.dirname(__file__)), params["paths"]["path_frame_recorder_ui"]), self)
+
+        ui_file = QFile(os.path.join(os.path.dirname(os.path.dirname(__file__)), params["paths"]["path_frame_recorder_ui"]))
+
+        if ui_file.open(QFile.ReadOnly):  
+            loader = CustomUiLoader()
+            loader.baseinstance = self  # Řekneme mu, že "self" je náš hlavní cíl
+            # Tímto se načte UI a VŠECHNY prvky se namapují přímo pod self.něco
+            loader.load(ui_file) 
+            ui_file.close()
+
+
+
         self.setWindowFlags(qtc.Qt.WindowStaysOnTopHint)
         self.setWindowFlags(qtc.Qt.FramelessWindowHint | qtc.Qt.WindowStaysOnTopHint | qtc.Qt.Tool)
         self.center()
@@ -130,8 +161,13 @@ class RecorderWidget(QtWidgets.QFrame):
         # self.show()
 
     def center(self):
-        """center widget"""
-        frame_geometry = self.frameGeometry()
-        screen_center = QDesktopWidget().availableGeometry().center()
-        frame_geometry.moveCenter(screen_center)
-        self.move(frame_geometry.topLeft())
+            """center widget"""
+
+            
+            frame_geometry = self.frameGeometry()
+            # V PySide6 získáme obrazovku přes QApplication
+            screen = QApplication.primaryScreen()
+            if screen:
+                screen_center = screen.availableGeometry().center()
+                frame_geometry.moveCenter(screen_center)
+                self.move(frame_geometry.topLeft())

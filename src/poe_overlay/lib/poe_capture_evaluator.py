@@ -4,9 +4,9 @@ import time
 import numpy as np  # type: ignore
 import cv2 as cv  # type: ignore
 
-from PyQt5 import QtCore as qtc  # type: ignore
-from PyQt5 import QtWidgets  # type: ignore
-from PyQt5.QtWidgets import QApplication, QVBoxLayout  # type: ignore
+from PySide6 import QtCore as qtc  # type: ignore
+from PySide6 import QtWidgets  # type: ignore
+from PySide6.QtWidgets import QApplication, QVBoxLayout  # type: ignore
 
 import poe_monitor_grabber as lmg
 
@@ -163,8 +163,8 @@ class Main(QtWidgets.QWidget):
 if __name__ == "__main__":
     # START TESTING -> STOP TESTING USING ESC KEY
     CaptureEvaluator.DEBUG = True
-    frame_scan = [0, 0, 1900, 1000]  # whole window frame
-    frame_health_bar = [115, 800, 15, 150]  # relative frame to frame_scan
+    frame_scan = [0, 40, 1900, 1113]  # whole window frame
+    frame_health_bar = [115, 900, 15, 150]  # relative frame to frame_scan
     frame_mana_bar = [1600, 800, 5, 2]  # relativo frame to frame_scan
 
     app = QApplication([])
