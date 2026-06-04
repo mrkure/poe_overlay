@@ -241,4 +241,4 @@ class Driver(QtWidgets.QWidget):
         self.unhook_all()
         self.p.kill()
         self.close()
-        # QApplication.quit()
+

@@ -3,15 +3,15 @@
 import os
 import sys
 import subprocess
-
+from pathlib import Path
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget, QSystemTrayIcon, QMenu, QApplication
 from PySide6.QtGui import QAction
 from lib._main import Driver
 import lib.poe_tools as tools
 
-SELF_DIR_PATH = os.path.dirname(__file__)
-SETTINGS_PATH = rf"{os.path.dirname(__file__)}\res\_settings.toml"
+SELF_DIR_PATH = BASE_DIR = Path(__file__).resolve().parent
+SETTINGS_PATH = SELF_DIR_PATH / "res" / "_settings.toml"
 
 
 class PoeOverlayTray(QSystemTrayIcon, QWidget):
@@ -26,8 +26,8 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
     # _______________________________________ METHODS _______________________________________
 
     def _init_tray(self):
-        self.icon_running = QIcon(self.settings["paths"]["path_icon_running"])
-        self.icon_stopped = QIcon(self.settings["paths"]["path_icon_stopped"])
+        self.icon_running = QIcon(str(SELF_DIR_PATH / self.settings["paths"]["path_icon_running"]))
+        self.icon_stopped = QIcon(str(SELF_DIR_PATH / self.settings["paths"]["path_icon_stopped"]))
         self.menu = QMenu()
         self.setContextMenu(self.menu)
         self.setIcon(self.icon_running)
@@ -85,7 +85,7 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
 
     def on_tray_click(self, button):
         """close or create main window app"""
-        if str(button) == "3":  # left button
+        if button.value == 3:  # left button
             if self.running:
                 self.setIcon(self.icon_stopped)
                 self.running = False
