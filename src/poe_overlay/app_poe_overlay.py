@@ -101,9 +101,14 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
         self.hide()
         sys.exit(0)
 
+def entrypoint():
+    app = QApplication([])
+    _ = PoeOverlayTray()
+    app.setStyle("fusion")
+    app.exec()
 
 if __name__ == "__main__":
     app = QApplication([])
-    tray_app_trade_whisper = PoeOverlayTray()
+    poe_overlay_tray = PoeOverlayTray()
     app.setStyle("fusion")
     app.exec()
