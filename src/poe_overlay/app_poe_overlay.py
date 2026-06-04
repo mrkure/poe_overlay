@@ -80,8 +80,10 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
     def on_buttons_window_close_button_clicked(self):
         """on_buttons_window_close_button_clicked"""
         tools.write_settings_toml(SETTINGS_PATH, self.settings)
+        self.setIcon(self.icon_stopped)
+        self.running = False
         self.driver.close_windows()
-
+        
     def on_tray_click(self, button):
         """close or create main window app"""
         if button.value == 3:  # left button
@@ -93,7 +95,8 @@ class PoeOverlayTray(QSystemTrayIcon, QWidget):
             elif not self.running:
                 self.setIcon(self.icon_running)
                 self.running = True
-                self.driver = Driver(self.settings)
+                self._init_driver()
+                # self.driver = Driver(self.settings)
 
     def on_close(self):
         """close app"""
