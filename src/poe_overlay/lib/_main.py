@@ -20,7 +20,7 @@ from poe_overlay.lib.poe_mouse import MouseManager
 from poe_overlay.lib.poe_keyboard import KeyboardManager
 from poe_overlay.lib.poe_widgets import ButtonsWidget, FrameWidget, RecorderWidget
 from poe_overlay.lib.poe_recorder import Recorder
-
+import sys
 
 class Driver(QtWidgets.QWidget):
     """main window class invisible window on the whole monitor
@@ -30,7 +30,10 @@ class Driver(QtWidgets.QWidget):
     def __init__(self, settings):
         super().__init__()
         self.settings = settings
+        old_setting = sys.dont_write_bytecode
+        sys.dont_write_bytecode = True        
         self.ImportedModule = tools.load_profile_module(self.settings)
+        sys.dont_write_bytecode = old_setting
         self.params = self.ImportedModule.params
         self.params["active_profile_name"] = settings["active_profile_name"]
 
