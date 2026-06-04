@@ -91,7 +91,14 @@
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="comboBox_profile"/>
+    <widget class="QComboBox" name="comboBox_profile">
+     <property name="minimumSize">
+      <size>
+       <width>150</width>
+       <height>0</height>
+      </size>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QPushButton" name="pushButton_reload">
