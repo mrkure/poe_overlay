@@ -4,7 +4,7 @@ import threading
 import inspect
 import mouse  # type: ignore
 import keyboard
-import poe_tools as tools
+import poe_overlay.lib.poe_tools as tools
 import pandas as pd
 
 

@@ -8,7 +8,7 @@ from PySide6 import QtCore as qtc  # type: ignore
 from PySide6 import QtWidgets  # type: ignore
 from PySide6.QtWidgets import QApplication, QVBoxLayout  # type: ignore
 
-import poe_monitor_grabber as lmg
+import poe_overlay.lib.poe_monitor_grabber as lmg
 
 
 class CaptureEvaluator:

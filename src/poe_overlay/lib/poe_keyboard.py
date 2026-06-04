@@ -5,7 +5,7 @@ import threading
 from typing import Dict
 
 import keyboard
-import poe_tools as tools
+import poe_overlay.lib.poe_tools as tools
 import pandas as pd
 
 

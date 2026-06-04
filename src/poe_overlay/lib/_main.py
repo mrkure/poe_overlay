@@ -14,12 +14,12 @@ from PySide6 import QtCore as qtc  # type: ignore
 from PySide6 import QtWidgets  # type: ignore
 from PySide6.QtWidgets import QApplication
 
-import poe_tools as tools
-import poe_bg_process as bgp
-from poe_mouse import MouseManager
-from poe_keyboard import KeyboardManager
-from poe_widgets import ButtonsWidget, FrameWidget, RecorderWidget
-from poe_recorder import Recorder
+import poe_overlay.lib.poe_tools as tools
+import poe_overlay.lib.poe_bg_process as bgp
+from poe_overlay.lib.poe_mouse import MouseManager
+from poe_overlay.lib.poe_keyboard import KeyboardManager
+from poe_overlay.lib.poe_widgets import ButtonsWidget, FrameWidget, RecorderWidget
+from poe_overlay.lib.poe_recorder import Recorder
 
 
 class Driver(QtWidgets.QWidget):

@@ -1,14 +1,13 @@
 """poe overlay tray module"""
 
-import os
 import sys
 import subprocess
 from pathlib import Path
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget, QSystemTrayIcon, QMenu, QApplication
 from PySide6.QtGui import QAction
-from lib._main import Driver
-import lib.poe_tools as tools
+from poe_overlay.lib._main import Driver
+import poe_overlay.lib.poe_tools as tools
 
 SELF_DIR_PATH = BASE_DIR = Path(__file__).resolve().parent
 SETTINGS_PATH = SELF_DIR_PATH / "res" / "_settings.toml"

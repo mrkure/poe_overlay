@@ -1,9 +1,8 @@
 """background process module, run in loop, evaluate health values"""
 
 import numpy as np
-
-import poe_monitor_grabber as mg
-from poe_capture_evaluator import CaptureEvaluator
+import poe_overlay.lib.poe_monitor_grabber as mg
+from poe_overlay.lib.poe_capture_evaluator import CaptureEvaluator
 
 
 def capture_screen(capture_ar, states_ar, params):
