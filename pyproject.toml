@@ -6,7 +6,7 @@ name = "poe_overlay"
 description = "poe overlay"
 readme = "README.md"
 requires-python = ">=3.12"
-version = "1.0.0"
+version = "1.6.0"
 
 # =============================================================================
 # PROJECT DEPENDENCIES
