@@ -11,6 +11,28 @@ resolution-markers = [
 ]
 
 [[package]]
+name = "bettercam"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "comtypes" },
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/96/27/bf39ca1caaaac0aedfdc77929608b316cce2bab7fc6f5f2643e3c107793b/bettercam-1.0.0.tar.gz", hash = "sha256:122cc0e905cb40be8f2a26e46ee587bae40c10eb9c23201370a54e68b84a0940", size = 19269, upload-time = "2023-11-22T08:25:15.705Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3c/66/c16181c6e036e60f41161ea31f78d4ffe76babbdad1e82499226e55bfecf/bettercam-1.0.0-py3-none-any.whl", hash = "sha256:0690b2289683725d875eb877db13a8c628935816866ef8ec0751945e988f32ac", size = 21029, upload-time = "2023-11-22T08:25:13.676Z" },
+]
+
+[[package]]
+name = "comtypes"
+version = "1.4.16"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c6/2a/65274c13327f637ec13af8d39f2cf579d9ebe7a0e683696b5f05236d2805/comtypes-1.4.16.tar.gz", hash = "sha256:cd66d1add01265cface4df51ba1e31cd1657e04463c281c802e737e79e1ba93c", size = 260252, upload-time = "2026-03-02T23:11:42.413Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5f/7c/0eb685107290b6221c03c46d39214a4e42a124189691cb83ae3228257f46/comtypes-1.4.16-py3-none-any.whl", hash = "sha256:e18d85179ff12955524c5a8c3bc09cb3c0d890f1da4d7123d14244c7b78f84c8", size = 296230, upload-time = "2026-03-02T23:11:41.049Z" },
+]
+
+[[package]]
 name = "keyboard"
 version = "0.13.5"
 source = { registry = "https://pypi.org/simple" }
@@ -172,9 +194,10 @@ wheels = [
 
 [[package]]
 name = "poe-overlay"
-version = "1.0.0"
+version = "1.6.0"
 source = { editable = "." }
 dependencies = [
+    { name = "bettercam" },
     { name = "keyboard" },
     { name = "mouse" },
     { name = "mss" },
@@ -187,6 +210,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "bettercam", specifier = ">=1.0.0" },
     { name = "keyboard", specifier = ">=0.13.5" },
     { name = "mouse", specifier = ">=0.7.1" },
     { name = "mss", specifier = ">=10.2.0" },
