@@ -103,7 +103,7 @@ class MouseWorkers:
     """functions for mouse automation"""
 
     @staticmethod
-    def wheel_forward(worker, params={"hotkey": "wf","active": True, "timeout": 1, "flasks": [[2,3,4,5]]}):
+    def wheel_forward(worker, params={"hotkey": "wf","active": True, "timeout": 1, "flasks": [[3],[4]]}):
         """wheel_forward"""
         if not worker:
             params["_flasks_pointer"] = 0
@@ -192,7 +192,7 @@ class AutomationWorkers:
                 AutomationWorkers.heal_timeout = 0
 
     @staticmethod
-    def automana(widget, mana_value, game_active, pprint=False, params={"active": False, "keys": [[5]], "low_lim": 1, "high_lim": 70, "timeout": 5000}):
+    def automana(widget, mana_value, game_active, pprint=False, params={"active": True, "keys": [[5]], "low_lim": 1, "high_lim": 70, "timeout": 2000}):
         """wheel_forward"""
         if pprint:
             print(f"{'Automana started':<20}{params}")
@@ -210,7 +210,7 @@ class AutomationWorkers:
                     AutomationWorkers.mana_pointer = 0
                 AutomationWorkers.mana_timeout = 0
 
-NORMAL = "orange"
+NORMAL = "green"
 LIGHT = f"light{NORMAL}"
 DARK = f"dark{NORMAL}"
 
