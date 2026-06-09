@@ -1,79 +1,69 @@
 """workers module"""
-
+import time, random, mouse, keyboard
+from itertools import count
 # fmt: off
-autoheal = {"active": True, "keys": [[1]], "low_lim": 13, "high_lim": 80, "timeout": 1000}
-automana = {"active": True, "keys": [[1]], "low_lim": 13, "high_lim": 80, "timeout": 1000}
 
+color          = "green"
+autoheal       = {"active": True, "keys": [[1]], "low_lim": 13, "high_lim": 80, "timeout": 1000}
+automana       = {"active": True, "keys": [[1]], "low_lim": 13, "high_lim": 80, "timeout": 1000}
+mouse_forward  = {"hotkey": "wf","active": True, "timeout": 1, "flasks": [[2,3,4,5]]}
+mouse_backward = {"hotkey": "wb","active": True, "timeout": 2}
 
-paths =  {
-        "target_app_name"       : "Path of Exilepconc",
-        "path_frame_buttons_ui" : "res\\frame_buttons.ui",
-        "path_frame_recorder_ui": "res\\frame_recorder.ui",
-        "path_icon_running"     : "res\\running.png",
-        "path_icon_stopped"     : "res\\stopped.png",
+widget_params = {
+    "frame_scan"        : {"geometry": [   5,  30,  1915, 1150], "css": "QLabel {background-color: transparent;border: 2px solid red;color: white;font-size: 14px;}"},
+    "frame_buttons"     : {"geometry": [600, 1000,   650,  1050], "css": f"QWidget{{background-color: {color};}} QComboBox,QPushButton{{background-color: {color};font: 10pt 'MS Shell Dlg 2';}}", "button_active": f"background-color: light{color}","button_inactive": f"background-color: {color}"},
+    "frame_health_bar"  : {"geometry": [ 105, 910,   120, 1090], "css": "QLabel {background-color: transparent;border: 1px solid red;color: white;font-size: 14px;}"},
+    "frame_mana_value"  : {"geometry": [1600, 910,  1670,  980], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},
+    "frame_health_value": {"geometry": [ 240, 910,   310,  980], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},
+    "frame_mana_bar"    : {"geometry": [1770, 910,  1785, 1090], "css": "QLabel {background-color: transparent;border: 1px solid blue;color: white;font-size: 14px;}"},
 }
 
-COLOR = "green"
-LIGHT = f"light{COLOR}"
-DARK = f"dark{COLOR}"
-
-widgets = {
-    "frame_buttons"     : {"name": "frame_scan","geometry": [600, 1000, 0, 0]       , "css": f"QWidget{{background-color: {COLOR};}} QComboBox,QPushButton{{background-color: {COLOR};font: 10pt 'MS Shell Dlg 2';}}", "button_active": f"background-color: {LIGHT}","button_inactive": f"background-color: {COLOR}"},
-    "frame_scan"        : {"name": "frame_health_bar","geometry": [   5,  30,  1915, 1150], "css": "QLabel {background-color: transparent;border: 2px solid red;color: white;font-size: 14px;}"},
-    "frame_health_bar"  : {"name": "frame_mana_value","geometry": [ 105, 910,   120, 1090], "css": "QLabel {background-color: transparent;border: 1px solid red;color: white;font-size: 14px;}"},
-    "frame_mana_value"  : {"name": "frame_health_value","geometry": [1600, 910,  1670,  980], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},
-    "frame_health_value": {"name": "frame_mana_bar","geometry": [ 240, 910,   310,  980], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},
-    "frame_mana_bar"    : {"name": "frame_buttons","geometry": [1770, 910,  1785, 1090], "css": "QLabel {background-color: transparent;border: 1px solid blue;color: white;font-size: 14px;}"},
-}
-
-class Widget:
+class WidgetParams:
     def __init__(self, widgets, name):       
-        if widgets["name"] == "frame_scan" or widgets["name"] == "frame_buttons":
+        if name == "frame_scan" or name == "frame_buttons":
             self.name   = widgets[name]
             self.css    = widgets[name]["css"]
-            self.xlt    = widgets[name]["geometry"][0]
-            self.ylt    = widgets[name]["geometry"][0]
-            self.xrb    = widgets[name]["geometry"][0]
-            self.yrb    = widgets[name]["geometry"][0]
-            self.w      = self.xrb - self.xlt
-            self.h      = self.ylt - self.yrb
-            self.region = (self.xlt, self.ylt, self.xrb, self.yrb)
+            self.x1    = widgets[name]["geometry"][0]
+            self.y1    = widgets[name]["geometry"][1]
+            self.x2    = widgets[name]["geometry"][2]
+            self.y2    = widgets[name]["geometry"][3]
+            self.w      = self.x2 - self.x1
+            self.h      = self.y2 - self.y1
+            self.region = (self.x1, self.y1, self.x2, self.y2)
+            self.regionwh = (self.x1, self.y1, self.w, self.h)             
         else:
-            x1, y1, _, _ = widgets["frame_scan"]["geometry"]
+            xs1, ys1, _, _ = widgets["frame_scan"]["geometry"]
             self.name   = widgets[name]
             self.css    = widgets[name]["css"]
-            self.xlt    = widgets[name]["geometry"][0] - x1
-            self.ylt    = widgets[name]["geometry"][0] - y1
-            self.xrb    = widgets[name]["geometry"][0] - x1
-            self.yrb    = widgets[name]["geometry"][0] - y1
-            self.w      = self.xrb - self.xlt
-            self.h      = self.ylt - self.yrb
-            self.region = (self.xlt, self.ylt, self.xrb, self.yrb)            
+            self.x1    = widgets[name]["geometry"][0] - xs1
+            self.y1    = widgets[name]["geometry"][1] - ys1
+            self.x2    = widgets[name]["geometry"][2] - xs1
+            self.y2    = widgets[name]["geometry"][3] - ys1
+            self.w      = self.x2 - self.y2
+            self.h      = self.y1 - self.y2
+            self.region = (self.x1, self.y1, self.x2, self.y2) 
+            self.regionwh = (self.x1, self.y1, self.w, self.h)                        
         self.button_active = widgets[name].get("button_active", "")
         self.button_inactive = widgets[name].get("button_inactive", "") 
+        self.validate()
 
     def validate(self):
-        
-        if self.
+        assert 0 <= self.x1 <= 1920 and self.x1 < self.x2, f"{self.name} x1 out of bounds"
+        assert 0 <= self.x2 <= 1920 and self.x1 < self.x2, f"{self.name} x2 out of bounds"
+        assert 0 <= self.y1 <= 1200 and self.y1 < self.y2, f"{self.name} y1 out of bounds"
+        assert 0 <= self.y2 <= 1200 and self.y1 < self.y2, f"{self.name} y2 out of bounds"      
 
-
-class Widgets:
+class WidgetsParams:
     def __init__(self, params):
-        self.frame_scan         = Widget(widgets, "frame_buttons")
-        self.frame_scan         = Widget(widgets, "frame_scan")
-        self.frame_health_bar   = Widget(widgets, "frame_health_bar")
-        self.frame_mana_value   = Widget(widgets, "frame_mana_value")
-        self.frame_health_value = Widget(widgets, "frame_health_value")
-        self.frame_mana_bar     = Widget(widgets, "frame_mana_bar")
+        self.active_profile_name = ""
+        self.frame_scan         = WidgetParams(widget_params, "frame_scan")
+        self.frame_buttons         = WidgetParams(widget_params, "frame_buttons")        
+        self.frame_health_bar   = WidgetParams(widget_params, "frame_health_bar")
+        self.frame_mana_value   = WidgetParams(widget_params, "frame_mana_value")
+        self.frame_health_value = WidgetParams(widget_params, "frame_health_value")
+        self.frame_mana_bar     = WidgetParams(widget_params, "frame_mana_bar")
 
-
-import time
-import random
-from itertools import count
-import mouse
-import keyboard
-
-
+wp = WidgetsParams(widget_params)
 class KeyboardWorkers:
     """functions for keyboard automation"""
 
@@ -170,7 +160,7 @@ class MouseWorkers:
     """functions for mouse automation"""
 
     @staticmethod
-    def wheel_forward(worker, params={"hotkey": "wf","active": True, "timeout": 1, "flasks": [[2,3,4,5]]}):
+    def wheel_forward(worker, params=mouse_forward):
         """wheel_forward"""
         if not worker:
             params["_flasks_pointer"] = 0
@@ -187,7 +177,7 @@ class MouseWorkers:
             worker["_running"] = False
 
     @staticmethod
-    def wheel_backward(worker, params={"hotkey": "wb","active": True, "timeout": 2}):
+    def wheel_backward(worker, params=mouse_backward):
         """wheel_forward"""
         if not worker:
             return params

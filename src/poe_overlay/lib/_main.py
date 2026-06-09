@@ -21,6 +21,8 @@ from poe_overlay.lib.poe_keyboard import KeyboardManager
 from poe_overlay.lib.poe_widgets import ButtonsWidget, FrameWidget, RecorderWidget
 from poe_overlay.lib.poe_recorder import Recorder
 import sys
+from typing import TYPE_CHECKING
+
 
 class Driver(QtWidgets.QWidget):
     """main window class invisible window on the whole monitor
@@ -31,11 +33,16 @@ class Driver(QtWidgets.QWidget):
         super().__init__()
         self.settings = settings
         old_setting = sys.dont_write_bytecode
-        sys.dont_write_bytecode = True        
-        self.ImportedModule = tools.load_profile_module(self.settings)
+        sys.dont_write_bytecode = True   
+        if TYPE_CHECKING:
+            import poe_overlay.profiles.anim_weapon.profile as ImportedModule  
+            self.ImportedModule = ImportedModule   
+        else:
+            self.ImportedModule = tools.load_profile_module(self.settings)
+        # self.ImportedModule = tools.load_profile_module(self.settings)            
         sys.dont_write_bytecode = old_setting
-        self.params = self.ImportedModule.params
-        self.params["active_profile_name"] = settings["active_profile_name"]
+        self.params = self.ImportedModule.wp
+        self.params.active_profile_name = settings["active_profile_name"]
 
         self._init_buttons_widget()
         self._init_recorder_widget()
@@ -53,7 +60,7 @@ class Driver(QtWidgets.QWidget):
     # _______________________________________ INIT  _______________________________________
     def _init_buttons_widget(self):
         """setup buttons frame connect signal and show"""
-        self.buttons_window = ButtonsWidget(self.params, self.settings)
+        self.buttons_window = ButtonsWidget(self.params.frame_buttons, self.settings)
         self.buttons_window.connect_buttons(self.on_button_window_button_clicked)
         self.buttons_window.connect_toolbuttons(self.on_button_window_toolbutton_state_changed)
         # self.buttons_window.move(*self.params["frame_buttons"]["geometry"][0:2])
@@ -68,36 +75,35 @@ class Driver(QtWidgets.QWidget):
         self.buttons_window.show()
 
     def _init_recorder_widget(self):
-        self.recorder_widget = RecorderWidget(self.params)
+        self.recorder_widget = RecorderWidget(self.params, self.settings)
 
     def _init_frames_widgets(self):
         """setup various frames on screen"""
-        self.frame_scan_area = FrameWidget(self.params["frame_scan"], self.params["frame_scan"], outer_frame=True)
+        self.frame_scan_area = FrameWidget(self.params.frame_scan)
         if self.buttons_window.toolButton_scan_area.isChecked():
             self.frame_scan_area.show()
-        self.frame_health_bar = FrameWidget(self.params["frame_scan"], self.params["frame_health_bar"], outer_frame=False)
+        self.frame_health_bar = FrameWidget(self.params.frame_health_bar)
         if self.buttons_window.toolButton_health_bar.isChecked():
             self.frame_health_bar.show()
-        self.frame_health_value = FrameWidget(self.params["frame_scan"], self.params["frame_health_value"], outer_frame=False)
+        self.frame_health_value = FrameWidget(self.params.frame_health_value)
         if self.buttons_window.toolButton_health_value.isChecked():
             self.frame_health_value.show()
 
-        self.frame_mana_bar = FrameWidget(self.params["frame_scan"], self.params["frame_mana_bar"], outer_frame=False)
+        self.frame_mana_bar = FrameWidget(self.params.frame_mana_bar)
         if self.buttons_window.toolButton_mana_bar.isChecked():
             self.frame_mana_bar.show()
-        self.frame_mana_value = FrameWidget(self.params["frame_scan"], self.params["frame_mana_value"], outer_frame=False)
+        self.frame_mana_value = FrameWidget(self.params.frame_mana_value)
         if self.buttons_window.toolButton_mana_value.isChecked():
             self.frame_mana_value.show()
 
     def _init_multiprocessing_shared_memory(self):
         """setup_multprocessing_shared_memory"""
-        w, h = self.params["frame_scan"]["geometry"][2:]
-        
-        self.mp_capture = mp.Array(c.c_ubyte, h * w * 4)
-        self.capture = np.frombuffer(self.mp_capture.get_obj(), dtype=np.uint8).reshape((h, w, 4))  # type: ignore
+        h, w = self.params.frame_scan.h, self.params.frame_scan.w
+        self.mp_capture = mp.Array(c.c_ubyte, h * w * 3)
+        self.capture = np.frombuffer(self.mp_capture.get_obj(), dtype=np.uint8).reshape((h, w, 3))
         self.mp_states = mp.Array(c.c_uint, 10)
-        self.states = np.frombuffer(self.mp_states.get_obj(), dtype=np.uint32)  # type: ignore
-        self.p = Process(target=bgp.capture_screen, args=(self.mp_capture, self.mp_states, self.params), daemon=True)
+        self.states = np.frombuffer(self.mp_states.get_obj(), dtype=np.uint32)
+        self.p = Process(target=bgp.capture_screen, args=(self.mp_capture, self.mp_states), daemon=True)
         self.states[0] = 1
         self.p.start()
 
@@ -131,11 +137,14 @@ class Driver(QtWidgets.QWidget):
     def on_10_ms_timer(self):
         """on_10_ms_timer"""
         self.ImportedModule.AutomationWorkers.autoheal(self.frame_health_value, self.states[5], self.game_active)
+        self.ImportedModule.wp 
         self.ImportedModule.AutomationWorkers.automana(self.frame_mana_value, self.states[6], self.game_active)
 
     def on_button_window_button_clicked(self):
         """callback method, react to buttons press on buttons frame"""
-        string = self.sender().text()
+        if not isinstance(self.sender, QtWidgets.QPushButton):
+            return
+        string = self.sender.text()
 
         self.bring_target_window_on_top()
 
@@ -164,30 +173,31 @@ class Driver(QtWidgets.QWidget):
     def on_button_window_toolbutton_state_changed(self):
         """callback method, react to toolbutton press on buttons frame"""
         self.bring_target_window_on_top()
-
-        name = self.sender().text()
+        if not isinstance(self.sender, QtWidgets.QToolButton):
+            return
+        name = self.sender.text()
         if name == "S":
-            if self.sender().isChecked():
+            if self.sender.isChecked():
                 self.frame_scan_area.show()
             else:
                 self.frame_scan_area.hide()
         if name == "H":
-            if self.sender().isChecked():
+            if self.sender.isChecked():
                 self.frame_health_bar.show()
             else:
                 self.frame_health_bar.hide()
         if name == "Hv":
-            if self.sender().isChecked():
+            if self.sender.isChecked():
                 self.frame_health_value.show()
             else:
                 self.frame_health_value.hide()
         if name == "M":
-            if self.sender().isChecked():
+            if self.sender.isChecked():
                 self.frame_mana_bar.show()
             else:
                 self.frame_mana_bar.hide()
         if name == "Mv":
-            if self.sender().isChecked():
+            if self.sender.isChecked():
                 self.frame_mana_value.show()
             else:
                 self.frame_mana_value.hide()
