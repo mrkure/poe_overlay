@@ -1,5 +1,72 @@
 """workers module"""
 
+# fmt: off
+autoheal = {"active": True, "keys": [[1]], "low_lim": 13, "high_lim": 80, "timeout": 1000}
+automana = {"active": True, "keys": [[1]], "low_lim": 13, "high_lim": 80, "timeout": 1000}
+
+
+paths =  {
+        "target_app_name"       : "Path of Exilepconc",
+        "path_frame_buttons_ui" : "res\\frame_buttons.ui",
+        "path_frame_recorder_ui": "res\\frame_recorder.ui",
+        "path_icon_running"     : "res\\running.png",
+        "path_icon_stopped"     : "res\\stopped.png",
+}
+
+COLOR = "green"
+LIGHT = f"light{COLOR}"
+DARK = f"dark{COLOR}"
+
+widgets = {
+    "frame_buttons"     : {"name": "frame_scan","geometry": [600, 1000, 0, 0]       , "css": f"QWidget{{background-color: {COLOR};}} QComboBox,QPushButton{{background-color: {COLOR};font: 10pt 'MS Shell Dlg 2';}}", "button_active": f"background-color: {LIGHT}","button_inactive": f"background-color: {COLOR}"},
+    "frame_scan"        : {"name": "frame_health_bar","geometry": [   5,  30,  1915, 1150], "css": "QLabel {background-color: transparent;border: 2px solid red;color: white;font-size: 14px;}"},
+    "frame_health_bar"  : {"name": "frame_mana_value","geometry": [ 105, 910,   120, 1090], "css": "QLabel {background-color: transparent;border: 1px solid red;color: white;font-size: 14px;}"},
+    "frame_mana_value"  : {"name": "frame_health_value","geometry": [1600, 910,  1670,  980], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},
+    "frame_health_value": {"name": "frame_mana_bar","geometry": [ 240, 910,   310,  980], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},
+    "frame_mana_bar"    : {"name": "frame_buttons","geometry": [1770, 910,  1785, 1090], "css": "QLabel {background-color: transparent;border: 1px solid blue;color: white;font-size: 14px;}"},
+}
+
+class Widget:
+    def __init__(self, widgets, name):       
+        if widgets["name"] == "frame_scan" or widgets["name"] == "frame_buttons":
+            self.name   = widgets[name]
+            self.css    = widgets[name]["css"]
+            self.xlt    = widgets[name]["geometry"][0]
+            self.ylt    = widgets[name]["geometry"][0]
+            self.xrb    = widgets[name]["geometry"][0]
+            self.yrb    = widgets[name]["geometry"][0]
+            self.w      = self.xrb - self.xlt
+            self.h      = self.ylt - self.yrb
+            self.region = (self.xlt, self.ylt, self.xrb, self.yrb)
+        else:
+            x1, y1, _, _ = widgets["frame_scan"]["geometry"]
+            self.name   = widgets[name]
+            self.css    = widgets[name]["css"]
+            self.xlt    = widgets[name]["geometry"][0] - x1
+            self.ylt    = widgets[name]["geometry"][0] - y1
+            self.xrb    = widgets[name]["geometry"][0] - x1
+            self.yrb    = widgets[name]["geometry"][0] - y1
+            self.w      = self.xrb - self.xlt
+            self.h      = self.ylt - self.yrb
+            self.region = (self.xlt, self.ylt, self.xrb, self.yrb)            
+        self.button_active = widgets[name].get("button_active", "")
+        self.button_inactive = widgets[name].get("button_inactive", "") 
+
+    def validate(self):
+        
+        if self.
+
+
+class Widgets:
+    def __init__(self, params):
+        self.frame_scan         = Widget(widgets, "frame_buttons")
+        self.frame_scan         = Widget(widgets, "frame_scan")
+        self.frame_health_bar   = Widget(widgets, "frame_health_bar")
+        self.frame_mana_value   = Widget(widgets, "frame_mana_value")
+        self.frame_health_value = Widget(widgets, "frame_health_value")
+        self.frame_mana_bar     = Widget(widgets, "frame_mana_bar")
+
+
 import time
 import random
 from itertools import count
@@ -171,7 +238,7 @@ class AutomationWorkers:
             print("automation unhooked ... ")
 
     @staticmethod
-    def autoheal(widget, heal_value, game_active, pprint=False, params={"active": True, "keys": [[1]], "low_lim": 13, "high_lim": 80, "timeout": 1000}):
+    def autoheal(widget, heal_value, game_active, pprint=False, params=autoheal):
         """wheel_forward"""
         if pprint:
             print(f"{'Autoheal started':<20}{params}")
@@ -192,7 +259,7 @@ class AutomationWorkers:
                 AutomationWorkers.heal_timeout = 0
 
     @staticmethod
-    def automana(widget, mana_value, game_active, pprint=False, params={"active": False, "keys": [[5]], "low_lim": 1, "high_lim": 70, "timeout": 5000}):
+    def automana(widget, mana_value, game_active, pprint=False, params=automana):
         """wheel_forward"""
         if pprint:
             print(f"{'Automana started':<20}{params}")
@@ -209,28 +276,3 @@ class AutomationWorkers:
                 if AutomationWorkers.mana_pointer == len(params["keys"]):
                     AutomationWorkers.mana_pointer = 0
                 AutomationWorkers.mana_timeout = 0
-
-NORMAL = "green"
-LIGHT = f"light{NORMAL}"
-DARK = f"dark{NORMAL}"
-
-params = {
-    "paths": {
-        "target_app_name": "Path of Exilepconc",
-        "path_frame_buttons_ui": "res\\frame_buttons.ui",
-        "path_frame_recorder_ui": "res\\frame_recorder.ui",
-        "path_icon_running": "res\\running.png",
-        "path_icon_stopped": "res\\stopped.png",
-    },
-    "frame_buttons": {
-        "geometry": [600, 1000, 0, 0],
-        "css": f"QWidget{{background-color: {NORMAL};}} QComboBox,QPushButton{{background-color: {NORMAL};font: 10pt 'MS Shell Dlg 2';}}",
-        "button_active": f"background-color: {LIGHT}",
-        "button_inactive": f"background-color: {NORMAL}",
-    },
-    "frame_health_bar": {"geometry": [105, 910, 15, 180], "css": "QLabel {background-color: transparent;border: 1px solid red;color: white;font-size: 14px;}"},
-    "frame_health_value": {"geometry": [240, 910, 70, 70], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},
-    "frame_mana_bar": {"geometry": [1770, 910, 15, 180], "css": "QLabel {background-color: transparent;border: 1px solid blue;color: white;font-size: 14px;}"},
-    "frame_mana_value": {"geometry": [1600, 910, 70, 70], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},
-    "frame_scan": {"geometry": [5, 29, 1910, 1120], "css": "QLabel {background-color: transparent;border: 2px solid red;color: white;font-size: 14px;}"},
-}

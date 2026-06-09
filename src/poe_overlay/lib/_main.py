@@ -92,6 +92,7 @@ class Driver(QtWidgets.QWidget):
     def _init_multiprocessing_shared_memory(self):
         """setup_multprocessing_shared_memory"""
         w, h = self.params["frame_scan"]["geometry"][2:]
+        
         self.mp_capture = mp.Array(c.c_ubyte, h * w * 4)
         self.capture = np.frombuffer(self.mp_capture.get_obj(), dtype=np.uint8).reshape((h, w, 4))  # type: ignore
         self.mp_states = mp.Array(c.c_uint, 10)

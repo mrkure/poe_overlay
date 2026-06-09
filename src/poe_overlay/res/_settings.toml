@@ -10,8 +10,8 @@ path_icon_stopped = "res\\stopped.png"
 path_profiles = "profiles"
 
 [checkboxes]
-S = false
-H = false
-Hv = false
-M = false
-Mv = false
+S = true
+H = true
+Hv = true
+M = true
+Mv = true

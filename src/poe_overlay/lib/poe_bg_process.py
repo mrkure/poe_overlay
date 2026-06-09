@@ -1,9 +1,10 @@
 """background process module, run in loop, evaluate health values"""
 
 import numpy as np
-import poe_overlay.lib.poe_monitor_grabber as mg
+# import poe_overlay.lib.poe_monitor_grabber as mg
+import poe_overlay.lib.poe_monitor_grabber_bettercam as mg
 from poe_overlay.lib.poe_capture_evaluator import CaptureEvaluator
-
+# import time
 
 def capture_screen(capture_ar, states_ar, params):
     """captures screen state"""
@@ -20,3 +21,15 @@ def capture_screen(capture_ar, states_ar, params):
         states_ar[5] = health_value
         mana_value, _, _, _ = CaptureEvaluator.evaluate_mana_bar(capture_ar, frame_mana_bar)
         states_ar[6] = mana_value
+
+    # start = time.time()
+    # total = 1000
+    # for i in range(total):
+    #     capture_ar[:, :, :] = monitor_grabber.grab_geometry(window_geometry)
+    #     health_value, _, _, _ = CaptureEvaluator.evaluate_health_bar(capture_ar, frame_health_bar)
+    #     states_ar[5] = health_value
+    #     mana_value, _, _, _ = CaptureEvaluator.evaluate_mana_bar(capture_ar, frame_mana_bar)
+    #     states_ar[6] = mana_value
+    #     # time.sleep(0.1)
+    # end = total/(time.time() - start)
+    # print(round(end, 1))        
