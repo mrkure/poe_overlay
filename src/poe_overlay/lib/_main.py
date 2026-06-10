@@ -24,6 +24,8 @@ import sys
 from typing import TYPE_CHECKING
 
 
+from poe_overlay.lib.poe_widgets import WidgetsParams
+
 class Driver(QtWidgets.QWidget):
     """main window class invisible window on the whole monitor
     class has to inherit from QWidget, to be able to work with signals"""
@@ -41,9 +43,11 @@ class Driver(QtWidgets.QWidget):
             self.ImportedModule = tools.load_profile_module(self.settings)
         # self.ImportedModule = tools.load_profile_module(self.settings)            
         sys.dont_write_bytecode = old_setting
-        self.params = self.ImportedModule.wp
-        self.params.active_profile_name = settings["active_profile_name"]
+        self.params2 = self.ImportedModule.widget_params
+        self.params = WidgetsParams(self.params2)
 
+        self.params.active_profile_name = settings["active_profile_name"]
+   
         self._init_buttons_widget()
         self._init_recorder_widget()
         self._init_frames_widgets()
@@ -103,7 +107,7 @@ class Driver(QtWidgets.QWidget):
         self.capture = np.frombuffer(self.mp_capture.get_obj(), dtype=np.uint8).reshape((h, w, 3))
         self.mp_states = mp.Array(c.c_uint, 10)
         self.states = np.frombuffer(self.mp_states.get_obj(), dtype=np.uint32)
-        self.p = Process(target=bgp.capture_screen, args=(self.mp_capture, self.mp_states), daemon=True)
+        self.p = Process(target=bgp.capture_screen, args=(self.mp_capture, self.mp_states, self.params), daemon=True)
         self.states[0] = 1
         self.p.start()
 
@@ -137,14 +141,13 @@ class Driver(QtWidgets.QWidget):
     def on_10_ms_timer(self):
         """on_10_ms_timer"""
         self.ImportedModule.AutomationWorkers.autoheal(self.frame_health_value, self.states[5], self.game_active)
-        self.ImportedModule.wp 
         self.ImportedModule.AutomationWorkers.automana(self.frame_mana_value, self.states[6], self.game_active)
 
     def on_button_window_button_clicked(self):
         """callback method, react to buttons press on buttons frame"""
         if not isinstance(self.sender, QtWidgets.QPushButton):
             return
-        string = self.sender.text()
+        string = self.sender().text()
 
         self.bring_target_window_on_top()
 
@@ -173,31 +176,33 @@ class Driver(QtWidgets.QWidget):
     def on_button_window_toolbutton_state_changed(self):
         """callback method, react to toolbutton press on buttons frame"""
         self.bring_target_window_on_top()
-        if not isinstance(self.sender, QtWidgets.QToolButton):
+        if not isinstance(self.sender(), QtWidgets.QToolButton):
             return
-        name = self.sender.text()
+        button: QtWidgets.QToolButton = self.sender() #type: ignore
+        name = button.text()
+        
         if name == "S":
-            if self.sender.isChecked():
+            if button.isChecked():
                 self.frame_scan_area.show()
             else:
                 self.frame_scan_area.hide()
         if name == "H":
-            if self.sender.isChecked():
+            if button.isChecked():
                 self.frame_health_bar.show()
             else:
                 self.frame_health_bar.hide()
         if name == "Hv":
-            if self.sender.isChecked():
+            if button.isChecked():
                 self.frame_health_value.show()
             else:
                 self.frame_health_value.hide()
         if name == "M":
-            if self.sender.isChecked():
+            if button.isChecked():
                 self.frame_mana_bar.show()
             else:
                 self.frame_mana_bar.hide()
         if name == "Mv":
-            if self.sender.isChecked():
+            if button.isChecked():
                 self.frame_mana_value.show()
             else:
                 self.frame_mana_value.hide()

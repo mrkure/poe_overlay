@@ -1,6 +1,6 @@
 target_app_name = "Path of Exile"
-active_profile_name = "anim_weapon"
-widget_buttons_position = [ 515, 486,]
+active_profile_name = "3.26_anim_weapon"
+widget_buttons_position = [ 683, 1044,]
 
 [paths]
 path_frame_buttons_ui = "res\\frame_buttons.ui"
@@ -10,8 +10,8 @@ path_icon_stopped = "res\\stopped.png"
 path_profiles = "profiles"
 
 [checkboxes]
-S = true
-H = true
-Hv = true
-M = true
-Mv = true
+S = false
+H = false
+Hv = false
+M = false
+Mv = false

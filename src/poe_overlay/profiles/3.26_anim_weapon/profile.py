@@ -3,7 +3,7 @@ import time, random, mouse, keyboard
 from itertools import count
 # fmt: off
 
-color          = "blue"
+color          = "green"
 autoheal       = {"active": True, "keys": [[1]], "low_lim": 13, "high_lim": 80, "timeout": 1000}
 automana       = {"active": True, "keys": [[5]], "low_lim": 13, "high_lim": 80, "timeout": 1000}
 mouse_forward  = {"hotkey": "wf","active": True, "timeout": 1, "flasks": [[2],[3],[4]]}

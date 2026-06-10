@@ -8,6 +8,7 @@ import ctypes
 user32 = ctypes.windll.user32
 screenw = user32.GetSystemMetrics(0)   # SM_CXSCREEN (Šířka)
 screenh = user32.GetSystemMetrics(1)  # SM_CYSCREEN (Výška)
+import cv2
 
 class MonitorGrabber:
     """monitor grabber"""
@@ -42,23 +43,14 @@ class MonitorGrabber:
 
     def grab_geometry(self, window):
         """grab_geometry"""
-        x, y, w, h = window
-        # print(window)
-        if x+w > screenw:
-            w = screenw - x
-        if y+h > screenh:
-            h = screenh - y            
-        region = (x, y, x+w, y+h)
-        haystack = self.sct.grab(region)
+        x1, y1, x2, y2 = window
+        haystack = self.sct.grab(window)
         if haystack is not None:
-            # Bettercam vrací RGB -> převedeme na BGRA, což je přesně to, co dělalo MSS
-            self.image_general = cv2.cvtColor(haystack, cv2.COLOR_RGB2BGRA)
+            self.image_general = haystack
         else:
-            # Ošetření pro případ, že se obraz nezměnil a bettercam vrátil None.
-            # Pokud už máme předchozí snímek, necháme ho. Pokud ne, vytvoříme prázdný.
             if not hasattr(self, "image_general"):
-                self.image_general = np.zeros((h, w, 4), dtype=np.uint8)
-        time.sleep(0.01)
+                self.image_general = np.zeros((y2-y1, x2-x1, 3), dtype=np.uint8)
+        time.sleep(0.05)
         return self.image_general
 
 

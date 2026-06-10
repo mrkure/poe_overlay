@@ -8,7 +8,6 @@ from PySide6 import QtCore as qtc  # type: ignore
 from PySide6 import QtWidgets  # type: ignore
 from PySide6.QtWidgets import QApplication, QVBoxLayout  # type: ignore
 
-import poe_overlay.lib.poe_monitor_grabber as lmg
 
 
 class CaptureEvaluator:
@@ -19,9 +18,9 @@ class CaptureEvaluator:
     @staticmethod
     def evaluate_health_bar(capture, frame, treshold=20, hue=[176, 180], sat=[180, 255], value=[50, 255]):  # pylint: disable=W0102
         """evaluates health bar"""
-        x, y, w, h = frame[0], frame[1], frame[2], frame[3]
-        frame_captured = capture[y : y + h, x : x + w, :]
-        hsv = cv.cvtColor(frame_captured, cv.COLOR_BGR2HSV)
+        x1, y1, x2, y2 = frame
+        frame_captured = capture[y1 : y2, x1 : x2]
+        hsv = cv.cvtColor(frame_captured, cv.COLOR_RGB2HSV)
         if CaptureEvaluator.DEBUG:
             print("--------------HSV---------------")
             print(hsv)
@@ -45,9 +44,9 @@ class CaptureEvaluator:
     @staticmethod
     def evaluate_mana_bar(capture, frame, treshold=100, hue=[90, 130], sat=[170, 255], value=[50, 255]):  # pylint: disable=W0102
         """evaluates health bar"""
-        x, y, w, h = frame[0], frame[1], frame[2], frame[3]
-        frame_captured = capture[y : y + h, x : x + w, :]
-        hsv = cv.cvtColor(frame_captured, cv.COLOR_BGR2HSV)  # translate bgr to hsv
+        x1, y1, x2, y2 = frame
+        frame_captured = capture[y1 : y2, x1 : x2]
+        hsv = cv.cvtColor(frame_captured, cv.COLOR_RGB2HSV)
         if CaptureEvaluator.DEBUG:
             print("--------------HSV---------------")
             print(hsv)

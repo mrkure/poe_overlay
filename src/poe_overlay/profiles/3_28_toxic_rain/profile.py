@@ -3,67 +3,20 @@ import time, random, mouse, keyboard
 from itertools import count
 # fmt: off
 
-color          = "green"
+color          = "red"
 autoheal       = {"active": True, "keys": [[1]], "low_lim": 13, "high_lim": 80, "timeout": 1000}
-automana       = {"active": True, "keys": [[1]], "low_lim": 13, "high_lim": 80, "timeout": 1000}
-mouse_forward  = {"hotkey": "wf","active": True, "timeout": 1, "flasks": [[2,3,4,5]]}
+automana       = {"active": True, "keys": [[5]], "low_lim": 13, "high_lim": 80, "timeout": 1000}
+mouse_forward  = {"hotkey": "wf","active": True, "timeout": 1, "flasks": [[2],[3],[4]]}
 mouse_backward = {"hotkey": "wb","active": True, "timeout": 2}
 
 widget_params = {
-    "frame_scan"        : {"geometry": [   5,  30,  1915, 1150], "css": "QLabel {background-color: transparent;border: 2px solid red;color: white;font-size: 14px;}"},
+    "frame_scan"        : {"geometry": [   5,  800,  1915, 1150], "css": "QLabel {background-color: transparent;border: 2px solid red;color: white;font-size: 14px;}"},
     "frame_buttons"     : {"geometry": [600, 1000,   650,  1050], "css": f"QWidget{{background-color: {color};}} QComboBox,QPushButton{{background-color: {color};font: 10pt 'MS Shell Dlg 2';}}", "button_active": f"background-color: light{color}","button_inactive": f"background-color: {color}"},
-    "frame_health_bar"  : {"geometry": [ 105, 910,   120, 1090], "css": "QLabel {background-color: transparent;border: 1px solid red;color: white;font-size: 14px;}"},
+    "frame_health_bar"  : {"geometry": [ 115, 930,   130, 1110], "css": "QLabel {background-color: transparent;border: 1px solid red;color: white;font-size: 14px;}"},
     "frame_mana_value"  : {"geometry": [1600, 910,  1670,  980], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},
     "frame_health_value": {"geometry": [ 240, 910,   310,  980], "css": "QLabel {background-color: rgba(14, 255, 255, 210);color: white;font: 18 24pt 'MS Shell Dlg 2';}"},
-    "frame_mana_bar"    : {"geometry": [1770, 910,  1785, 1090], "css": "QLabel {background-color: transparent;border: 1px solid blue;color: white;font-size: 14px;}"},
+    "frame_mana_bar"    : {"geometry": [1780, 930,  1795, 1110], "css": "QLabel {background-color: transparent;border: 1px solid blue;color: white;font-size: 14px;}"},
 }
-
-class WidgetParams:
-    def __init__(self, widgets, name):       
-        if name == "frame_scan" or name == "frame_buttons":
-            self.name   = widgets[name]
-            self.css    = widgets[name]["css"]
-            self.x1    = widgets[name]["geometry"][0]
-            self.y1    = widgets[name]["geometry"][1]
-            self.x2    = widgets[name]["geometry"][2]
-            self.y2    = widgets[name]["geometry"][3]
-            self.w      = self.x2 - self.x1
-            self.h      = self.y2 - self.y1
-            self.region = (self.x1, self.y1, self.x2, self.y2)
-            self.regionwh = (self.x1, self.y1, self.w, self.h)             
-        else:
-            xs1, ys1, _, _ = widgets["frame_scan"]["geometry"]
-            self.name   = widgets[name]
-            self.css    = widgets[name]["css"]
-            self.x1    = widgets[name]["geometry"][0] - xs1
-            self.y1    = widgets[name]["geometry"][1] - ys1
-            self.x2    = widgets[name]["geometry"][2] - xs1
-            self.y2    = widgets[name]["geometry"][3] - ys1
-            self.w      = self.x2 - self.y2
-            self.h      = self.y1 - self.y2
-            self.region = (self.x1, self.y1, self.x2, self.y2) 
-            self.regionwh = (self.x1, self.y1, self.w, self.h)                        
-        self.button_active = widgets[name].get("button_active", "")
-        self.button_inactive = widgets[name].get("button_inactive", "") 
-        self.validate()
-
-    def validate(self):
-        assert 0 <= self.x1 <= 1920 and self.x1 < self.x2, f"{self.name} x1 out of bounds"
-        assert 0 <= self.x2 <= 1920 and self.x1 < self.x2, f"{self.name} x2 out of bounds"
-        assert 0 <= self.y1 <= 1200 and self.y1 < self.y2, f"{self.name} y1 out of bounds"
-        assert 0 <= self.y2 <= 1200 and self.y1 < self.y2, f"{self.name} y2 out of bounds"      
-
-class WidgetsParams:
-    def __init__(self, params):
-        self.active_profile_name = ""
-        self.frame_scan         = WidgetParams(widget_params, "frame_scan")
-        self.frame_buttons         = WidgetParams(widget_params, "frame_buttons")        
-        self.frame_health_bar   = WidgetParams(widget_params, "frame_health_bar")
-        self.frame_mana_value   = WidgetParams(widget_params, "frame_mana_value")
-        self.frame_health_value = WidgetParams(widget_params, "frame_health_value")
-        self.frame_mana_bar     = WidgetParams(widget_params, "frame_mana_bar")
-
-wp = WidgetsParams(widget_params)
 class KeyboardWorkers:
     """functions for keyboard automation"""
 
